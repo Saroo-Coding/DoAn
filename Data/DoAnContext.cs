@@ -179,4 +179,12 @@ public partial class DoAnContext : DbContext
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder.UseSqlServer("Server=127.0.0.1; Database=mxh; Integrated Security=true; MultipleActiveResultSets=true; Trusted_Connection=True");
+        }
+    }
 }

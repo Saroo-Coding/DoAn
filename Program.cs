@@ -1,3 +1,5 @@
+using DoAn.Data;
+using Microsoft.EntityFrameworkCore;
 using MySqlConnector;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,7 +12,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 //Connection
 builder.Services.AddTransient<MySqlConnection>(_ => new MySqlConnection(builder.Configuration.GetConnectionString("Default")));
-
+builder.Services.AddDbContext<DoAnContext>(options =>
+{
+    options.UseMySql(builder.Configuration.GetConnectionString("Default")
+    ,Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.23-mysql"));
+});
+//builder.Services.AddDbContext<DoAnContext>(options => options.UseSqlServer("name=ConnectionStrings:Default"));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
