@@ -19,8 +19,8 @@ namespace DoAn.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var kq = _context.Users.Join(_context.UsersRelas,u => u.Id,r => r.Id,(u,r) => new { r.Follower,  u.Id }).ToList();
-            return Ok(/*_context.Users.Select(i => new {i.Id,i.FullName}).ToList()*/kq);
+            var kq = _context.Users.Join(_context.UsersRelas,u => u.UserId,r => r.UserId,(u,r) => new { r.UserId,  u.FullName }).ToList();
+            return Ok(_context.Users.Select(i => new {i.UserId,i.FullName}).ToList());
         }
 
         [HttpPost]

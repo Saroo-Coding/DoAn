@@ -47,7 +47,7 @@ namespace DoAn.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUser(int id, User user)
         {
-            if (id != user.Id)
+            if (id != user.UserId)
             {
                 return BadRequest();
             }
@@ -85,9 +85,9 @@ namespace DoAn.Controllers
             }
             catch (DbUpdateException)
             {
-                if (UserExists(user.Id))
+                if (UserExists(user.UserId))
                 {
-                    return Conflict();
+                    return Ok(new {Alert = "Đã tồn tại"});
                 }
                 else
                 {
@@ -95,7 +95,7 @@ namespace DoAn.Controllers
                 }
             }
 
-            return CreatedAtAction("GetUser", new { id = user.Id }, user);
+            return CreatedAtAction("GetUser", new { id = user.UserId }, user);
         }
 
         // DELETE: api/Users/5
@@ -116,7 +116,7 @@ namespace DoAn.Controllers
 
         private bool UserExists(int id)
         {
-            return _context.Users.Any(e => e.Id == id);
+            return _context.Users.Any(e => e.UserId == id);
         }
     }
 }
