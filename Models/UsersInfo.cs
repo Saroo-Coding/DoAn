@@ -5,7 +5,7 @@ namespace DoAn;
 
 public partial class UsersInfo
 {
-    public int Id { get; set; }
+    public int UserId { get; set; }
 
     public bool? IsActive { get; set; }
 
@@ -21,5 +21,5 @@ public partial class UsersInfo
 
     public DateTime CreatedAt { get; set; }
 
-    public virtual User IdNavigation { get; set; } = null!;
+    public virtual User User { get; set; } = null!;
 }

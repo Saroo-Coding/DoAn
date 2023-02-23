@@ -5,7 +5,7 @@ namespace DoAn;
 
 public partial class Post
 {
-    public int Id { get; set; }
+    public int PostId { get; set; }
 
     public int? UserId { get; set; }
 

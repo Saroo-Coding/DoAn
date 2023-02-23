@@ -5,7 +5,7 @@ namespace DoAn;
 
 public partial class Like
 {
-    public int Id { get; set; }
+    public int LikeId { get; set; }
 
     public int? UserId { get; set; }
 

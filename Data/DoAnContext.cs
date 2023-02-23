@@ -30,7 +30,7 @@ public partial class DoAnContext : DbContext
 
         modelBuilder.Entity<Like>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.HasKey(e => e.LikeId).HasName("PRIMARY");
 
             entity.ToTable("likes");
 
@@ -38,10 +38,9 @@ public partial class DoAnContext : DbContext
 
             entity.HasIndex(e => e.UserId, "user_id");
 
-            entity.Property(e => e.Id)
-                .ValueGeneratedNever()
+            entity.Property(e => e.LikeId)
                 .HasColumnType("int(11)")
-                .HasColumnName("id");
+                .HasColumnName("like_id");
             entity.Property(e => e.PostId)
                 .HasColumnType("int(11)")
                 .HasColumnName("post_id");
@@ -60,16 +59,15 @@ public partial class DoAnContext : DbContext
 
         modelBuilder.Entity<Post>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.HasKey(e => e.PostId).HasName("PRIMARY");
 
             entity.ToTable("posts");
 
             entity.HasIndex(e => e.UserId, "user_id");
 
-            entity.Property(e => e.Id)
-                .ValueGeneratedNever()
+            entity.Property(e => e.PostId)
                 .HasColumnType("int(11)")
-                .HasColumnName("id");
+                .HasColumnName("post_id");
             entity.Property(e => e.AccessModifier)
                 .HasMaxLength(127)
                 .HasColumnName("access_modifier");
@@ -93,14 +91,14 @@ public partial class DoAnContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.HasKey(e => e.UserId).HasName("PRIMARY");
 
             entity.ToTable("users");
 
-            entity.Property(e => e.Id)
+            entity.Property(e => e.UserId)
                 .ValueGeneratedNever()
                 .HasColumnType("int(11)")
-                .HasColumnName("ID");
+                .HasColumnName("user_id");
             entity.Property(e => e.AvatarUrl)
                 .HasMaxLength(255)
                 .HasColumnName("avatar_url");
@@ -110,21 +108,21 @@ public partial class DoAnContext : DbContext
             entity.Property(e => e.FullName)
                 .HasMaxLength(127)
                 .HasColumnName("full_name");
-            entity.Property(e => e.InterestedUser)
-                .HasMaxLength(258)
-                .HasColumnName("interested_User");
+            entity.Property(e => e.Phone)
+                .HasMaxLength(12)
+                .HasColumnName("phone");
         });
 
         modelBuilder.Entity<UsersInfo>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.HasKey(e => e.UserId).HasName("PRIMARY");
 
             entity.ToTable("users_info");
 
-            entity.Property(e => e.Id)
+            entity.Property(e => e.UserId)
                 .ValueGeneratedNever()
                 .HasColumnType("int(11)")
-                .HasColumnName("id");
+                .HasColumnName("user_id");
             entity.Property(e => e.CreatedAt)
                 .ValueGeneratedOnAddOrUpdate()
                 .HasDefaultValueSql("current_timestamp()")
@@ -145,33 +143,32 @@ public partial class DoAnContext : DbContext
                 .HasMaxLength(127)
                 .HasColumnName("working_at");
 
-            entity.HasOne(d => d.IdNavigation).WithOne(p => p.UsersInfo)
-                .HasForeignKey<UsersInfo>(d => d.Id)
+            entity.HasOne(d => d.User).WithOne(p => p.UsersInfo)
+                .HasForeignKey<UsersInfo>(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("users_info_ibfk_1");
         });
 
         modelBuilder.Entity<UsersRela>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.HasKey(e => e.RelaId).HasName("PRIMARY");
 
             entity.ToTable("users_rela");
 
-            entity.HasIndex(e => e.Follower, "follower");
+            entity.HasIndex(e => e.UserId, "follower");
 
-            entity.Property(e => e.Id)
-                .ValueGeneratedNever()
+            entity.Property(e => e.RelaId)
                 .HasColumnType("int(11)")
-                .HasColumnName("id");
-            entity.Property(e => e.Follower)
-                .HasColumnType("int(11)")
-                .HasColumnName("follower");
+                .HasColumnName("rela_id");
             entity.Property(e => e.Follwing)
                 .HasColumnType("int(11)")
                 .HasColumnName("follwing");
+            entity.Property(e => e.UserId)
+                .HasColumnType("int(11)")
+                .HasColumnName("user_id");
 
-            entity.HasOne(d => d.FollowerNavigation).WithMany(p => p.UsersRelas)
-                .HasForeignKey(d => d.Follower)
+            entity.HasOne(d => d.User).WithMany(p => p.UsersRelas)
+                .HasForeignKey(d => d.UserId)
                 .HasConstraintName("users_rela_ibfk_1");
         });
 
@@ -179,12 +176,4 @@ public partial class DoAnContext : DbContext
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
-        {
-            optionsBuilder.UseSqlServer("Server=127.0.0.1; Database=mxh; Integrated Security=true; MultipleActiveResultSets=true; Trusted_Connection=True");
-        }
-    }
 }

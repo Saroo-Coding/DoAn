@@ -5,15 +5,15 @@ namespace DoAn;
 
 public partial class User
 {
-    public int Id { get; set; }
+    public int UserId { get; set; }
 
-    public string? FullName { get; set; }
+    public string FullName { get; set; } = null!;
+
+    public string Phone { get; set; } = null!;
 
     public string? Email { get; set; }
 
     public string? AvatarUrl { get; set; }
-
-    public string? InterestedUser { get; set; }
 
     public virtual ICollection<Like> Likes { get; } = new List<Like>();
 

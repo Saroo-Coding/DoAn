@@ -5,11 +5,11 @@ namespace DoAn;
 
 public partial class UsersRela
 {
-    public int Id { get; set; }
+    public int RelaId { get; set; }
 
-    public int? Follower { get; set; }
+    public int? UserId { get; set; }
 
     public int? Follwing { get; set; }
 
-    public virtual User? FollowerNavigation { get; set; }
+    public virtual User? User { get; set; }
 }

@@ -19,7 +19,15 @@ namespace DoAn.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            return Ok(_context.Users.ToList());
+            var kq = _context.Users.Join(_context.UsersRelas,u => u.Id,r => r.Id,(u,r) => new { r.Follower,  u.Id }).ToList();
+            return Ok(/*_context.Users.Select(i => new {i.Id,i.FullName}).ToList()*/kq);
+        }
+
+        [HttpPost]
+        public IActionResult Post(User user) 
+        {
+            _context.Users.Add(user);
+            return Ok();
         }
     }
 }
