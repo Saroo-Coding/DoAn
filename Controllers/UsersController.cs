@@ -23,9 +23,13 @@ namespace DoAn.Controllers
 
         // GET: api/Users
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        /*public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             return await _context.Users.ToListAsync();
+        }*/
+        public IActionResult GetAll()
+        {
+            return Ok(_context.Users.Select(i => new {i.UserId,i.FullName,i.Phone,i.Email,i.AvatarUrl}).ToList());
         }
 
         // GET: api/Users/5
@@ -49,7 +53,7 @@ namespace DoAn.Controllers
         {
             if (id != user.UserId)
             {
-                return BadRequest();
+                return Ok(new { Alert = "Không đúng id" });
             }
 
             _context.Entry(user).State = EntityState.Modified;
@@ -69,8 +73,7 @@ namespace DoAn.Controllers
                     throw;
                 }
             }
-
-            return NoContent();
+            return Ok(new { Alert = "Sửa thành công" });
         }
 
         // POST: api/Users
@@ -105,13 +108,13 @@ namespace DoAn.Controllers
             var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
-                return NotFound();
+                return Ok(new { Alert = "Không tồn tại " });
             }
 
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(new { Alert = "Đã xóa " + id });
         }
 
         private bool UserExists(int id)
