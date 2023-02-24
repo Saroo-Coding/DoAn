@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DoAn;
 using DoAn.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DoAn.Controllers
 {
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -31,6 +33,27 @@ namespace DoAn.Controllers
         {
             return Ok(_context.Users.Select(i => new {i.UserId,i.FullName,i.Phone,i.Email,i.AvatarUrl}).ToList());
         }
+        
+        
+        [Authorize]
+        //tạo Authorize dùng để đăng nhập https://www.youtube.com/watch?v=6X6iONXhz2w&list=PL4WEkbdagHIQVbiTwos0E38VghMJA06OT&index=7
+        //Encode to Base64 format email:pass VD:Basic ZGFuaEBnbWFpbC5jb206MTIzNDU2Nzg=
+        //cách tạo json token https://www.youtube.com/watch?v=rn2gp5VNGKI&list=PL4WEkbdagHIQVbiTwos0E38VghMJA06OT&index=8
+        [HttpGet("GetUser")]
+        public async Task<ActionResult<User>> GetUser()
+        {
+            string email = HttpContext.User.Identity.Name;
+
+            var user = await _context.Users.Where(x => x.Email == email).FirstOrDefaultAsync();
+            user.Pass = null;
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new { Alert = user });
+        }
 
         // GET: api/Users/5
         [HttpGet("{id}")]
@@ -47,7 +70,6 @@ namespace DoAn.Controllers
         }
 
         // PUT: api/Users/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUser(int id, User user)
         {
@@ -77,7 +99,6 @@ namespace DoAn.Controllers
         }
 
         // POST: api/Users
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(User user)
         {

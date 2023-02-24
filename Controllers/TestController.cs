@@ -23,11 +23,24 @@ namespace DoAn.Controllers
             return Ok(_context.Users.Select(i => new {i.UserId,i.FullName}).ToList());
         }
 
+
         [HttpPost]
         public IActionResult Post(User user) 
         {
-            _context.Users.Add(user);
-            return Ok();
+            var newuser = new User
+            {
+                //UserId = Guid.NewGuid(),
+                UserId = user.UserId,
+                FullName = user.FullName,
+                Phone= user.Phone,
+                Email= user.Email,
+                AvatarUrl= user.AvatarUrl,
+            };
+            _context.Users.Add(newuser);
+            _context.SaveChanges();
+
+            return Ok( new {Data = newuser});
         }
+
     }
 }

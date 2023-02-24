@@ -108,6 +108,9 @@ public partial class DoAnContext : DbContext
             entity.Property(e => e.FullName)
                 .HasMaxLength(127)
                 .HasColumnName("full_name");
+            entity.Property(e => e.Pass)
+                .HasMaxLength(100)
+                .HasColumnName("pass");
             entity.Property(e => e.Phone)
                 .HasMaxLength(12)
                 .HasColumnName("phone");
@@ -136,6 +139,9 @@ public partial class DoAnContext : DbContext
             entity.Property(e => e.OtherInfo)
                 .HasMaxLength(1023)
                 .HasColumnName("other_info");
+            entity.Property(e => e.Sex)
+                .HasMaxLength(5)
+                .HasColumnName("sex");
             entity.Property(e => e.StudyAt)
                 .HasMaxLength(127)
                 .HasColumnName("study_at");

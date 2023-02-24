@@ -7,6 +7,8 @@ public partial class UsersInfo
 {
     public int UserId { get; set; }
 
+    public string Sex { get; set; } = null!;
+
     public bool? IsActive { get; set; }
 
     public string? StudyAt { get; set; }
