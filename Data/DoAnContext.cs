@@ -12,6 +12,10 @@ public partial class DoAnContext : DbContext
     {
     }
 
+    public virtual DbSet<Comment> Comments { get; set; }
+
+    public virtual DbSet<Friend> Friends { get; set; }
+
     public virtual DbSet<Like> Likes { get; set; }
 
     public virtual DbSet<Post> Posts { get; set; }
@@ -27,6 +31,71 @@ public partial class DoAnContext : DbContext
         modelBuilder
             .UseCollation("utf8mb4_general_ci")
             .HasCharSet("utf8mb4");
+
+        modelBuilder.Entity<Comment>(entity =>
+        {
+            entity.HasKey(e => e.CmId).HasName("PRIMARY");
+
+            entity.ToTable("comment");
+
+            entity.HasIndex(e => e.PostId, "comment_post");
+
+            entity.HasIndex(e => e.UserId, "user_comment");
+
+            entity.Property(e => e.CmId)
+                .HasColumnType("int(11)")
+                .HasColumnName("cm_id");
+            entity.Property(e => e.Content)
+                .HasMaxLength(3000)
+                .HasColumnName("content");
+            entity.Property(e => e.PostId)
+                .HasColumnType("int(11)")
+                .HasColumnName("post_id");
+            entity.Property(e => e.UserId)
+                .HasColumnType("int(11)")
+                .HasColumnName("user_id");
+
+            entity.HasOne(d => d.Post).WithMany(p => p.Comments)
+                .HasForeignKey(d => d.PostId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("comment_post");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Comments)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("user_comment");
+        });
+
+        modelBuilder.Entity<Friend>(entity =>
+        {
+            entity.HasKey(e => e.FriendId).HasName("PRIMARY");
+
+            entity.ToTable("friend");
+
+            entity.HasIndex(e => e.AddFriend, "add_friend");
+
+            entity.HasIndex(e => e.UserId, "isme");
+
+            entity.Property(e => e.FriendId)
+                .HasColumnType("int(11)")
+                .HasColumnName("friend_id");
+            entity.Property(e => e.AddFriend)
+                .HasColumnType("int(11)")
+                .HasColumnName("add_friend");
+            entity.Property(e => e.UserId)
+                .HasColumnType("int(11)")
+                .HasColumnName("user_id");
+
+            entity.HasOne(d => d.AddFriendNavigation).WithMany(p => p.FriendAddFriendNavigations)
+                .HasForeignKey(d => d.AddFriend)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("add_friend");
+
+            entity.HasOne(d => d.User).WithMany(p => p.FriendUsers)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("isme");
+        });
 
         modelBuilder.Entity<Like>(entity =>
         {
@@ -50,10 +119,12 @@ public partial class DoAnContext : DbContext
 
             entity.HasOne(d => d.Post).WithMany(p => p.Likes)
                 .HasForeignKey(d => d.PostId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("likes_ibfk_2");
 
             entity.HasOne(d => d.User).WithMany(p => p.Likes)
                 .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("likes_ibfk_1");
         });
 
@@ -71,9 +142,21 @@ public partial class DoAnContext : DbContext
             entity.Property(e => e.AccessModifier)
                 .HasMaxLength(127)
                 .HasColumnName("access_modifier");
+            entity.Property(e => e.CmCount)
+                .HasColumnType("int(11)")
+                .HasColumnName("cm_count");
             entity.Property(e => e.Content)
                 .HasMaxLength(3000)
                 .HasColumnName("content");
+            entity.Property(e => e.Image1)
+                .HasMaxLength(300)
+                .HasColumnName("image1");
+            entity.Property(e => e.Image2)
+                .HasMaxLength(300)
+                .HasColumnName("image2");
+            entity.Property(e => e.Image3)
+                .HasMaxLength(300)
+                .HasColumnName("image3");
             entity.Property(e => e.LikeCount)
                 .HasColumnType("int(11)")
                 .HasColumnName("like_count");
@@ -86,6 +169,7 @@ public partial class DoAnContext : DbContext
 
             entity.HasOne(d => d.User).WithMany(p => p.Posts)
                 .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("posts_ibfk_1");
         });
 
@@ -161,9 +245,10 @@ public partial class DoAnContext : DbContext
 
             entity.ToTable("users_rela");
 
-            entity.HasIndex(e => e.UserId, "follower");
+            entity.HasIndex(e => e.UserId, "users_folow");
 
             entity.Property(e => e.RelaId)
+                .ValueGeneratedOnAdd()
                 .HasColumnType("int(11)")
                 .HasColumnName("rela_id");
             entity.Property(e => e.Follwing)
@@ -173,9 +258,15 @@ public partial class DoAnContext : DbContext
                 .HasColumnType("int(11)")
                 .HasColumnName("user_id");
 
-            entity.HasOne(d => d.User).WithMany(p => p.UsersRelas)
+            entity.HasOne(d => d.Rela).WithOne(p => p.UsersRelaRela)
+                .HasForeignKey<UsersRela>(d => d.RelaId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("folow_user");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UsersRelaUsers)
                 .HasForeignKey(d => d.UserId)
-                .HasConstraintName("users_rela_ibfk_1");
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("users_folow");
         });
 
         OnModelCreatingPartial(modelBuilder);

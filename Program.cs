@@ -15,11 +15,15 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAuthentication("BasicAuthentication").AddScheme<AuthenticationSchemeOptions, BasicAuthentication>("BasicAuthentication",null);
 //Connection
 builder.Services.AddTransient<MySqlConnection>(_ => new MySqlConnection(builder.Configuration.GetConnectionString("Default")));
+
 builder.Services.AddDbContext<DoAnContext>(options =>
 {
     options.UseMySql(builder.Configuration.GetConnectionString("Default")
     ,Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.23-mysql"));
 });
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
+    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+);
 //builder.Services.AddDbContext<DoAnContext>(options => options.UseSqlServer("name=ConnectionStrings:Default"));
 var app = builder.Build();
 
