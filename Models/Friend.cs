@@ -7,9 +7,9 @@ public partial class Friend
 {
     public int FriendId { get; set; }
 
-    public int UserId { get; set; }
+    public string UserId { get; set; } = null!;
 
-    public int AddFriend { get; set; }
+    public string AddFriend { get; set; } = null!;
 
     public virtual User AddFriendNavigation { get; set; } = null!;
 

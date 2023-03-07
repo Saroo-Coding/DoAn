@@ -7,11 +7,11 @@ public partial class UsersRela
 {
     public int RelaId { get; set; }
 
-    public int UserId { get; set; }
+    public string UserId { get; set; } = null!;
 
-    public int Follwing { get; set; }
+    public string Follwing { get; set; } = null!;
 
-    public virtual User Rela { get; set; } = null!;
+    public virtual User FollwingNavigation { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;
 }

@@ -1,9 +1,11 @@
 ﻿using DoAn.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace DoAn.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
@@ -17,11 +19,11 @@ namespace DoAn.Controllers
 
         //GET 
         [HttpGet("IsMe/{id}")]
-        public async Task<ActionResult> Get(int id)
+        public async Task<ActionResult> Get(string id)
         {
             var user = await _context.Users
                 .Where(i => i.UserId == id)
-                .Select(i => new { i.UserId, i.FullName, i.AvatarUrl, i.Phone, i.Email
+                .Select(i => new { i.UserId, i.FullName, i.Phone, i.Email
                     , i.UsersInfo!.Sex, i.UsersInfo.StudyAt, i.UsersInfo.WorkingAt, i.UsersInfo.Favorites
                     , i.UsersInfo.OtherInfo, i.UsersInfo.DateOfBirth})
                 .ToListAsync();
@@ -34,7 +36,7 @@ namespace DoAn.Controllers
         }
 
         [HttpGet("MyPost/{id}")]
-        public async Task<ActionResult> GetMyPost(int id)
+        public async Task<ActionResult> GetMyPost(string id)
         {
             var user = await _context.Posts.Where(i => i.UserId == id)
                 .Select(i => new { i.PostId, i.Content, i.Image1, i.Image2, i.Image3, i.AccessModifier, i.LikeCount, i.CmCount, i.SharedPostId })
@@ -46,13 +48,12 @@ namespace DoAn.Controllers
             }
             return Ok(user);
         }
-        //select gọi khoa ngoai = include select(i => new {i.Comments})
         
         [HttpGet("LikeMyPost/{id}")]
         public async Task<ActionResult> GetLikePost(int id) 
         {
             var user = await _context.Likes.Where(i => i.PostId == id)
-                .Select(i => new { i.User.UserId, i.User.FullName,i.User.AvatarUrl})
+                .Select(i => new { i.User.UserId, i.User.FullName,i.User.UsersInfo!.Avatar})
                 .ToListAsync();
 
             if (user == null)
@@ -66,7 +67,7 @@ namespace DoAn.Controllers
         public async Task<ActionResult> GetComment(int id)
         {
             var user = await _context.Comments.Where(i => i.PostId == id)
-                .Select(i => new { i.User.UserId, i.User.FullName, i.User.AvatarUrl, i.Content})
+                .Select(i => new { i.User.UserId, i.User.FullName, i.User.UsersInfo!.Avatar, i.Content})
                 .ToListAsync();
 
             if (user == null)
@@ -77,10 +78,10 @@ namespace DoAn.Controllers
         }
 
         [HttpGet("MyFriend/{id}")]
-        public async Task<ActionResult> GetFriend(int id)
+        public async Task<ActionResult> GetFriend(string id)
         {
             var user = await _context.Friends.Where(i => i.UserId == id)
-                .Select(i => new { i.AddFriendNavigation.UserId, i.AddFriendNavigation.FullName, i.AddFriendNavigation.AvatarUrl })
+                .Select(i => new { i.AddFriendNavigation.UserId, i.AddFriendNavigation.FullName, i.AddFriendNavigation.UsersInfo!.Avatar })
                 .ToListAsync();
 
             if (user == null)
@@ -91,10 +92,10 @@ namespace DoAn.Controllers
         }
         
         [HttpGet("MyFollow/{id}")]
-        public async Task<ActionResult> GetFollow(int id)
+        public async Task<ActionResult> GetFollow(string id)
         {
             var user = await _context.UsersRelas.Where(i => i.UserId == id)
-                .Select(i => new { i.Rela.UserId, i.Rela.FullName, i.Rela.AvatarUrl })
+                .Select(i => new { i.FollwingNavigation.UserId, i.FollwingNavigation.FullName, i.FollwingNavigation.UsersInfo!.Avatar })
                 .ToListAsync();
 
             if (user == null)
@@ -107,9 +108,10 @@ namespace DoAn.Controllers
         //[HttpGet("FollowMe/{id}")]
     
         //Post
-        [HttpPost("UpdateProfile/{id}")]
+        /*[HttpPost("UpdateProfile/{id}")]
         public async Task<ActionResult> PostUser(UsersInfo user)
         {
+
             _context.UsersInfos.Add(user);
             try
             {
@@ -128,12 +130,7 @@ namespace DoAn.Controllers
             }
 
             return CreatedAtAction("GetUser", new { id = user.UserId }, user);
-        }
-
-        //Method
-        private bool UserExists(int id)
-        {
-            return _context.Users.Any(e => e.UserId == id);
-        }
+        }*/
+       
     }
 }

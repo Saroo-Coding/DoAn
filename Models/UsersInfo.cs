@@ -5,7 +5,9 @@ namespace DoAn;
 
 public partial class UsersInfo
 {
-    public int UserId { get; set; }
+    public string UserId { get; set; } = null!;
+
+    public string Avatar { get; set; }= null!;
 
     public string Sex { get; set; } = null!;
 
@@ -19,9 +21,7 @@ public partial class UsersInfo
 
     public string? OtherInfo { get; set; }
 
-    public DateOnly? DateOfBirth { get; set; }
-
-    public DateTime CreatedAt { get; set; }
+    public DateTime? DateOfBirth { get; set; }
 
     public virtual User User { get; set; } = null!;
 }

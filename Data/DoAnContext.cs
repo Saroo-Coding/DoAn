@@ -20,6 +20,8 @@ public partial class DoAnContext : DbContext
 
     public virtual DbSet<Post> Posts { get; set; }
 
+    public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<UsersInfo> UsersInfos { get; set; }
@@ -52,17 +54,15 @@ public partial class DoAnContext : DbContext
                 .HasColumnType("int(11)")
                 .HasColumnName("post_id");
             entity.Property(e => e.UserId)
-                .HasColumnType("int(11)")
+                .HasMaxLength(30)
                 .HasColumnName("user_id");
 
             entity.HasOne(d => d.Post).WithMany(p => p.Comments)
                 .HasForeignKey(d => d.PostId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("comment_post");
 
             entity.HasOne(d => d.User).WithMany(p => p.Comments)
                 .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("user_comment");
         });
 
@@ -72,29 +72,27 @@ public partial class DoAnContext : DbContext
 
             entity.ToTable("friend");
 
-            entity.HasIndex(e => e.AddFriend, "add_friend");
+            entity.HasIndex(e => e.AddFriend, "add_friends");
 
-            entity.HasIndex(e => e.UserId, "isme");
+            entity.HasIndex(e => e.UserId, "friend_add");
 
             entity.Property(e => e.FriendId)
                 .HasColumnType("int(11)")
                 .HasColumnName("friend_id");
             entity.Property(e => e.AddFriend)
-                .HasColumnType("int(11)")
+                .HasMaxLength(30)
                 .HasColumnName("add_friend");
             entity.Property(e => e.UserId)
-                .HasColumnType("int(11)")
+                .HasMaxLength(30)
                 .HasColumnName("user_id");
 
             entity.HasOne(d => d.AddFriendNavigation).WithMany(p => p.FriendAddFriendNavigations)
                 .HasForeignKey(d => d.AddFriend)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("add_friend");
+                .HasConstraintName("add_friends");
 
             entity.HasOne(d => d.User).WithMany(p => p.FriendUsers)
                 .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("isme");
+                .HasConstraintName("friend_add");
         });
 
         modelBuilder.Entity<Like>(entity =>
@@ -105,7 +103,7 @@ public partial class DoAnContext : DbContext
 
             entity.HasIndex(e => e.PostId, "post_id");
 
-            entity.HasIndex(e => e.UserId, "user_id");
+            entity.HasIndex(e => e.UserId, "user_like");
 
             entity.Property(e => e.LikeId)
                 .HasColumnType("int(11)")
@@ -114,18 +112,16 @@ public partial class DoAnContext : DbContext
                 .HasColumnType("int(11)")
                 .HasColumnName("post_id");
             entity.Property(e => e.UserId)
-                .HasColumnType("int(11)")
+                .HasMaxLength(30)
                 .HasColumnName("user_id");
 
             entity.HasOne(d => d.Post).WithMany(p => p.Likes)
                 .HasForeignKey(d => d.PostId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("likes_ibfk_2");
+                .HasConstraintName("user_post");
 
             entity.HasOne(d => d.User).WithMany(p => p.Likes)
                 .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("likes_ibfk_1");
+                .HasConstraintName("user_like");
         });
 
         modelBuilder.Entity<Post>(entity =>
@@ -134,13 +130,14 @@ public partial class DoAnContext : DbContext
 
             entity.ToTable("posts");
 
-            entity.HasIndex(e => e.UserId, "user_id");
+            entity.HasIndex(e => e.UserId, "my_post");
 
             entity.Property(e => e.PostId)
                 .HasColumnType("int(11)")
                 .HasColumnName("post_id");
             entity.Property(e => e.AccessModifier)
                 .HasMaxLength(127)
+                .HasDefaultValueSql("'public'")
                 .HasColumnName("access_modifier");
             entity.Property(e => e.CmCount)
                 .HasColumnType("int(11)")
@@ -164,13 +161,39 @@ public partial class DoAnContext : DbContext
                 .HasColumnType("int(11)")
                 .HasColumnName("shared_post_id");
             entity.Property(e => e.UserId)
-                .HasColumnType("int(11)")
+                .HasMaxLength(30)
                 .HasColumnName("user_id");
 
             entity.HasOne(d => d.User).WithMany(p => p.Posts)
                 .HasForeignKey(d => d.UserId)
+                .HasConstraintName("my_post");
+        });
+
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.HasKey(e => e.TokenId).HasName("PRIMARY");
+
+            entity.ToTable("refresh_token");
+
+            entity.HasIndex(e => e.UserId, "user_token");
+
+            entity.Property(e => e.TokenId)
+                .HasColumnType("int(11)")
+                .HasColumnName("token_id");
+            entity.Property(e => e.ExpiryDate)
+                .HasColumnType("datetime")
+                .HasColumnName("expiry_date");
+            entity.Property(e => e.Token)
+                .HasMaxLength(200)
+                .HasColumnName("token");
+            entity.Property(e => e.UserId)
+                .HasMaxLength(30)
+                .HasColumnName("user_id");
+
+            entity.HasOne(d => d.User).WithMany(p => p.RefreshTokens)
+                .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("posts_ibfk_1");
+                .HasConstraintName("user_token");
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -180,12 +203,11 @@ public partial class DoAnContext : DbContext
             entity.ToTable("users");
 
             entity.Property(e => e.UserId)
-                .ValueGeneratedNever()
-                .HasColumnType("int(11)")
+                .HasMaxLength(30)
                 .HasColumnName("user_id");
-            entity.Property(e => e.AvatarUrl)
-                .HasMaxLength(255)
-                .HasColumnName("avatar_url");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("created_at");
             entity.Property(e => e.Email)
                 .HasMaxLength(255)
                 .HasColumnName("email");
@@ -207,14 +229,11 @@ public partial class DoAnContext : DbContext
             entity.ToTable("users_info");
 
             entity.Property(e => e.UserId)
-                .ValueGeneratedNever()
-                .HasColumnType("int(11)")
+                .HasMaxLength(30)
                 .HasColumnName("user_id");
-            entity.Property(e => e.CreatedAt)
-                .ValueGeneratedOnAddOrUpdate()
-                .HasDefaultValueSql("current_timestamp()")
-                .HasColumnType("timestamp")
-                .HasColumnName("created_at");
+            entity.Property(e => e.Avatar)
+                .HasMaxLength(300)
+                .HasColumnName("avatar");
             entity.Property(e => e.DateOfBirth).HasColumnName("date_of_birth");
             entity.Property(e => e.Favorites)
                 .HasMaxLength(1023)
@@ -235,8 +254,7 @@ public partial class DoAnContext : DbContext
 
             entity.HasOne(d => d.User).WithOne(p => p.UsersInfo)
                 .HasForeignKey<UsersInfo>(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("users_info_ibfk_1");
+                .HasConstraintName("user_in4");
         });
 
         modelBuilder.Entity<UsersRela>(entity =>
@@ -245,28 +263,27 @@ public partial class DoAnContext : DbContext
 
             entity.ToTable("users_rela");
 
-            entity.HasIndex(e => e.UserId, "users_folow");
+            entity.HasIndex(e => e.UserId, "follow_me");
+
+            entity.HasIndex(e => e.Follwing, "me_follow");
 
             entity.Property(e => e.RelaId)
-                .ValueGeneratedOnAdd()
                 .HasColumnType("int(11)")
                 .HasColumnName("rela_id");
             entity.Property(e => e.Follwing)
-                .HasColumnType("int(11)")
+                .HasMaxLength(30)
                 .HasColumnName("follwing");
             entity.Property(e => e.UserId)
-                .HasColumnType("int(11)")
+                .HasMaxLength(30)
                 .HasColumnName("user_id");
 
-            entity.HasOne(d => d.Rela).WithOne(p => p.UsersRelaRela)
-                .HasForeignKey<UsersRela>(d => d.RelaId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("folow_user");
+            entity.HasOne(d => d.FollwingNavigation).WithMany(p => p.UsersRelaFollwingNavigations)
+                .HasForeignKey(d => d.Follwing)
+                .HasConstraintName("me_follow");
 
             entity.HasOne(d => d.User).WithMany(p => p.UsersRelaUsers)
                 .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("users_folow");
+                .HasConstraintName("follow_me");
         });
 
         OnModelCreatingPartial(modelBuilder);

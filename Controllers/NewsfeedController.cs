@@ -1,33 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using DoAn;
 using DoAn.Data;
 using Microsoft.AspNetCore.Authorization;
 
 namespace DoAn.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class NewsfeedController : ControllerBase
     {
         private readonly DoAnContext _context;
 
-        public UsersController(DoAnContext context)
+        public NewsfeedController(DoAnContext context)
         {
             _context = context;
         }
-        
 
-        [Authorize]
-        //tạo Authorize dùng để đăng nhập https://www.youtube.com/watch?v=6X6iONXhz2w&list=PL4WEkbdagHIQVbiTwos0E38VghMJA06OT&index=7
-        //Encode to Base64 format email:pass VD:Basic ZGFuaEBnbWFpbC5jb206MTIzNDU2Nzg=
-        //cách tạo json token https://www.youtube.com/watch?v=rn2gp5VNGKI&list=PL4WEkbdagHIQVbiTwos0E38VghMJA06OT&index=8
         [HttpGet("GetUser")]
         public async Task<ActionResult<User>> GetUser()
         {
@@ -44,26 +33,9 @@ namespace DoAn.Controllers
             return Ok(new { Alert = user });
         }
 
-
-        // GET: api/Users/5
-        [HttpGet("ShortUser/{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
-        {
-            var user = await _context.Users.Select(i => new { i.UserId, i.FullName, i.Phone, i.Email, i.AvatarUrl })
-                .Where(i => i.UserId == id)
-                .ToListAsync();
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(user);
-        }
-
         // PUT: api/Users/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        public async Task<IActionResult> PutUser(string id, User user)
         {
             if (id != user.UserId)
             {
@@ -130,7 +102,7 @@ namespace DoAn.Controllers
             return Ok(new { Alert = "Đã xóa " + id });
         }
 
-        private bool UserExists(int id)
+        private bool UserExists(string id)
         {
             return _context.Users.Any(e => e.UserId == id);
         }

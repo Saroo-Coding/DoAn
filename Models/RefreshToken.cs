@@ -3,15 +3,15 @@ using System.Collections.Generic;
 
 namespace DoAn;
 
-public partial class Like
+public partial class RefreshToken
 {
-    public int LikeId { get; set; }
+    public int TokenId { get; set; }
 
     public string UserId { get; set; } = null!;
 
-    public int PostId { get; set; }
+    public string Token { get; set; } = null!;
 
-    public virtual Post Post { get; set; } = null!;
+    public DateTime ExpiryDate { get; set; }
 
     public virtual User User { get; set; } = null!;
 }
