@@ -1,6 +1,5 @@
 ﻿using DoAn.Data;
 using DoAn.Models;
-using MessagePack;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -54,6 +53,24 @@ namespace DoAn.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
+        private static string MD5Hash(string text)
+        {
+            MD5 md5 = MD5.Create();
+            /*Chuyen string ve byte*/
+            byte[] inputBytes = Encoding.ASCII.GetBytes(text);
+            /*ma hoa byte*/
+            byte[] result = md5.ComputeHash(inputBytes);
+            StringBuilder strBuilder = new StringBuilder();
+            for (int i = 0; i < result.Length; i++)
+            {
+                strBuilder.Append(result[i].ToString("x2"));
+            }
+            return strBuilder.ToString();
+        }
+        private bool UserExists(string email, string phone)
+        {
+            return _context.Users.Any(e => e.Email == email || e.Phone == phone);
+        }
 
         // GET
         [HttpGet]
@@ -89,7 +106,17 @@ namespace DoAn.Controllers
         {
             try
             {
-                user.UserId = Convert.ToBase64String(Guid.NewGuid().ToByteArray()).Replace("/", "_").Replace("+", "-").Substring(0, 15); 
+                
+                string guid = Guid.NewGuid().ToString();
+                Byte[] encode = Encoding.ASCII.GetBytes(guid);
+                string uuid = "";
+                for (int i = 0; i < encode.Length; i++)
+                {
+                    uuid += encode[i] + "";
+                }
+
+                user.UserId = uuid.Substring(0, 15);
+                user.Pass = MD5Hash(Request.Form["pass"]!);
                 user.CreatedAt = DateTime.Now;
 
                 UsersInfo usersInfo = new UsersInfo();
@@ -123,9 +150,5 @@ namespace DoAn.Controllers
             return Ok(user);
         }
 
-        private bool UserExists(string email, string phone)
-        {
-            return _context.Users.Any(e => e.Email == email || e.Phone == phone);
-        }
     }
 }

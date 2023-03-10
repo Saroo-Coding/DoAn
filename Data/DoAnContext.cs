@@ -215,7 +215,7 @@ public partial class DoAnContext : DbContext
                 .HasMaxLength(127)
                 .HasColumnName("full_name");
             entity.Property(e => e.Pass)
-                .HasMaxLength(100)
+                .HasMaxLength(50)
                 .HasColumnName("pass");
             entity.Property(e => e.Phone)
                 .HasMaxLength(12)
