@@ -5,8 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DoAn.Controllers
 {
-    [Authorize]
-    [Route("api/[controller]")]
+    //[Authorize]
+    [Route("[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
     {

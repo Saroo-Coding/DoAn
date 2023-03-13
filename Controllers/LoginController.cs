@@ -11,7 +11,7 @@ using System.Text;
 
 namespace DoAn.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class LoginController : ControllerBase
     {
@@ -74,9 +74,9 @@ namespace DoAn.Controllers
 
         // GET
         [HttpGet]
-        public async Task<ActionResult> GetLogin(string email, string pass)
+        /*public async Task<ActionResult> GetLogin(string email, string pass)
         {
-            User user = await _context.Users.Where(x => x.Email == email && x.Pass == pass).FirstOrDefaultAsync();
+            var user = await _context.Users.Where(x => x.Email == email && x.Pass == MD5Hash(pass)).FirstOrDefaultAsync();
             
             UserWithToken? userWithToken = null;
 
@@ -98,15 +98,56 @@ namespace DoAn.Controllers
             userWithToken!.RefreshToken = CreateAccessToken(user.UserId!);
 
             return Ok(userWithToken);
-        }
+        }*/
+        public async Task<ActionResult> GetLogin(string? email, string? sdt, string pass)
+        {
+            UserWithToken? userWithToken = null;
+            if (email == null && sdt != null)
+            {
+                var user = await _context.Users.Where(x => x.Phone == sdt && x.Pass == MD5Hash(pass)).FirstOrDefaultAsync();
+                if (user != null)
+                {
+                    RefreshToken refreshToken = CreateRefreshToken();
+                    user!.RefreshTokens.Add(refreshToken);
+                    await _context.SaveChangesAsync();
 
+                    userWithToken = new UserWithToken(user!);
+                    userWithToken.RefreshToken = refreshToken.Token;
+                }
+                else
+                {
+                    return NotFound("Lỗi đăng nhập");
+                }
+                //tao token
+                userWithToken!.RefreshToken = CreateAccessToken(user.UserId!);
+            }
+            else
+            {
+                var user = await _context.Users.Where(x => x.Email == email && x.Pass == MD5Hash(pass)).FirstOrDefaultAsync();
+                if (user != null)
+                {
+                    RefreshToken refreshToken = CreateRefreshToken();
+                    user!.RefreshTokens.Add(refreshToken);
+                    await _context.SaveChangesAsync();
+
+                    userWithToken = new UserWithToken(user!);
+                    userWithToken.RefreshToken = refreshToken.Token;
+                }
+                else
+                {
+                    return NotFound("Lỗi đăng nhập");
+                }
+                //tao token
+                userWithToken!.RefreshToken = CreateAccessToken(user.UserId!);
+            }
+            return Ok(userWithToken);
+        }
         // POST
         [HttpPost]
         public async Task<ActionResult> PostUser([FromForm]User user)
         {
             try
             {
-                
                 string guid = Guid.NewGuid().ToString();
                 Byte[] encode = Encoding.ASCII.GetBytes(guid);
                 string uuid = "";
@@ -116,19 +157,20 @@ namespace DoAn.Controllers
                 }
 
                 user.UserId = uuid.Substring(0, 15);
+                user.FullName = Request.Form["firstname"] + " " + Request.Form["lastname"];
                 user.Pass = MD5Hash(Request.Form["pass"]!);
                 user.CreatedAt = DateTime.Now;
 
                 UsersInfo usersInfo = new UsersInfo();
                 usersInfo.UserId = user.UserId;
                 usersInfo.Avatar = "https://cdn1.iconfinder.com/data/icons/user-pictures/100/unknown-512.png";
-                usersInfo.Sex = "Không";
+                usersInfo.Sex = Request.Form["sex"]!;
                 usersInfo.IsActive = true;
                 usersInfo.StudyAt = "";
                 usersInfo.WorkingAt = "";
                 usersInfo.Favorites = "";
                 usersInfo.OtherInfo = "";
-                usersInfo.DateOfBirth = new DateTime(2001,1,1);
+                usersInfo.DateOfBirth = Convert.ToDateTime(Request.Form["date"]);
 
                 _context.UsersInfos.Add(usersInfo);
                 _context.Users.Add(user);
