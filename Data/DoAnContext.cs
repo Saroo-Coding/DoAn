@@ -139,9 +139,6 @@ public partial class DoAnContext : DbContext
                 .HasMaxLength(127)
                 .HasDefaultValueSql("'public'")
                 .HasColumnName("access_modifier");
-            entity.Property(e => e.CmCount)
-                .HasColumnType("int(11)")
-                .HasColumnName("cm_count");
             entity.Property(e => e.Content)
                 .HasMaxLength(3000)
                 .HasColumnName("content");
@@ -154,15 +151,12 @@ public partial class DoAnContext : DbContext
             entity.Property(e => e.Image3)
                 .HasMaxLength(300)
                 .HasColumnName("image3");
-            entity.Property(e => e.LikeCount)
-                .HasColumnType("int(11)")
-                .HasColumnName("like_count");
-            entity.Property(e => e.SharedPostId)
-                .HasColumnType("int(11)")
-                .HasColumnName("shared_post_id");
             entity.Property(e => e.UserId)
                 .HasMaxLength(30)
                 .HasColumnName("user_id");
+            entity.Property(e => e.DatePost)
+                .HasColumnType("datetime")
+                .HasColumnName("date_post");
 
             entity.HasOne(d => d.User).WithMany(p => p.Posts)
                 .HasForeignKey(d => d.UserId)

@@ -5,9 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Encodings.Web;
 
 namespace DoAn.Controllers
 {
@@ -33,7 +35,7 @@ namespace DoAn.Controllers
                 rng.GetBytes(random);
                 refreshToken.Token = Convert.ToBase64String(random);
             }
-            refreshToken.ExpiryDate = DateTime.UtcNow.AddMonths(6);
+            refreshToken.ExpiryDate = DateTime.Now;
 
             return refreshToken;
         }
@@ -72,36 +74,12 @@ namespace DoAn.Controllers
             return _context.Users.Any(e => e.Email == email || e.Phone == phone);
         }
 
-        // GET
+        //GET
         [HttpGet]
-        /*public async Task<ActionResult> GetLogin(string email, string pass)
-        {
-            var user = await _context.Users.Where(x => x.Email == email && x.Pass == MD5Hash(pass)).FirstOrDefaultAsync();
-            
-            UserWithToken? userWithToken = null;
-
-            if (user != null)
-            {
-                RefreshToken refreshToken = CreateRefreshToken();
-                user!.RefreshTokens.Add(refreshToken);
-                await _context.SaveChangesAsync();
-
-                userWithToken = new UserWithToken(user!);
-                userWithToken.RefreshToken = refreshToken.Token;
-            }
-                
-            if (user == null)
-            {
-                return NotFound("Lỗi đăng nhập");
-            }
-            //tao token
-            userWithToken!.RefreshToken = CreateAccessToken(user.UserId!);
-
-            return Ok(userWithToken);
-        }*/
         public async Task<ActionResult> GetLogin(string? email, string? sdt, string pass)
         {
             UserWithToken? userWithToken = null;
+            //sdt
             if (email == null && sdt != null)
             {
                 var user = await _context.Users.Where(x => x.Phone == sdt && x.Pass == MD5Hash(pass)).FirstOrDefaultAsync();
@@ -121,6 +99,7 @@ namespace DoAn.Controllers
                 //tao token
                 userWithToken!.RefreshToken = CreateAccessToken(user.UserId!);
             }
+            //email
             else
             {
                 var user = await _context.Users.Where(x => x.Email == email && x.Pass == MD5Hash(pass)).FirstOrDefaultAsync();
@@ -142,6 +121,7 @@ namespace DoAn.Controllers
             }
             return Ok(userWithToken);
         }
+
         // POST
         [HttpPost]
         public async Task<ActionResult> PostUser([FromForm]User user)
@@ -192,5 +172,9 @@ namespace DoAn.Controllers
             return Ok(user);
         }
 
+        /*private bool UserExists(string id)
+        {
+            return _context.Users.Any(e => e.UserId == id);
+        }*/
     }
 }

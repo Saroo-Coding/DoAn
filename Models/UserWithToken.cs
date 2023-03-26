@@ -8,10 +8,6 @@
         public UserWithToken(User user)
         {
             this.UserId = user.UserId;
-            this.FullName = user.FullName;
-            this.Phone = user.Phone;
-            this.Email = user.Email;
-            this.Pass = user.Pass;
         }
     }
 }

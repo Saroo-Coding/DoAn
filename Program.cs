@@ -46,6 +46,15 @@ builder.Services.AddAuthentication(x =>
         ValidateAudience = false
     };
 });
+//cors
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AnotherPolicy",
+                      policy =>
+                      {
+                          policy.WithOrigins("https://earth-project-x.glitch.me", "http://localhost:3000").AllowAnyHeader().AllowAnyMethod();
+                      });
+});
 
 var app = builder.Build();
 
@@ -55,6 +64,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseCors("AnotherPolicy");
 
 app.UseHttpsRedirection();
 

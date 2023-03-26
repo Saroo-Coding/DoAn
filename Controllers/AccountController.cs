@@ -1,11 +1,14 @@
 ﻿using DoAn.Data;
+using DoAn.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace DoAn.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
@@ -19,15 +22,13 @@ namespace DoAn.Controllers
 
         //GET 
         [HttpGet("IsMe/{id}")]
-        public async Task<ActionResult> Get(string id)
+       public async Task<ActionResult> Get(string id)
         {
             var user = await _context.Users
                 .Where(i => i.UserId == id)
-                .Select(i => new { i.UserId, i.FullName, i.Phone, i.Email
-                    , i.UsersInfo!.Sex, i.UsersInfo.StudyAt, i.UsersInfo.WorkingAt, i.UsersInfo.Favorites
-                    , i.UsersInfo.OtherInfo, i.UsersInfo.DateOfBirth})
-                .ToListAsync();
-
+                .Select(i => new { i.UserId, i.FullName, i.Phone, i.Email,
+                    i.UsersInfo!.Avatar, i.UsersInfo!.Sex, i.UsersInfo.StudyAt, i.UsersInfo.WorkingAt, i.UsersInfo.Favorites
+                    , i.UsersInfo.OtherInfo, i.UsersInfo.DateOfBirth}).FirstOrDefaultAsync();
             if (user == null)
             {
                 return NotFound();
@@ -39,7 +40,7 @@ namespace DoAn.Controllers
         public async Task<ActionResult> GetMyPost(string id)
         {
             var user = await _context.Posts.Where(i => i.UserId == id)
-                .Select(i => new { i.PostId, i.Content, i.Image1, i.Image2, i.Image3, i.AccessModifier, i.LikeCount, i.CmCount, i.SharedPostId })
+                .Select(i => new { i.PostId, i.Content, i.Image1, i.Image2, i.Image3, i.AccessModifier, i.DatePost })
                 .ToListAsync();
 
             if (user == null)
@@ -108,29 +109,5 @@ namespace DoAn.Controllers
         //[HttpGet("FollowMe/{id}")]
     
         //Post
-        /*[HttpPost("UpdateProfile/{id}")]
-        public async Task<ActionResult> PostUser(UsersInfo user)
-        {
-
-            _context.UsersInfos.Add(user);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (UserExists(user.UserId))
-                {
-                    return Ok(new { Alert = "Đã tồn tại" });
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return CreatedAtAction("GetUser", new { id = user.UserId }, user);
-        }*/
-       
     }
 }

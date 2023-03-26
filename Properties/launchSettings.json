@@ -14,7 +14,8 @@
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "https://localhost:7126;http://localhost:5139",
+      "applicationUrl": "https://localhost:7126",
+      //"applicationUrl": "https://earth-project-x.glitch.me/",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

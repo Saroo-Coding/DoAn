@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace DoAn.Controllers
 {
-    [Authorize]
-    [Route("api/[controller]")]
+    //[Authorize]
+    [Route("[controller]")]
     [ApiController]
     public class NewsfeedController : ControllerBase
     {
@@ -16,95 +16,53 @@ namespace DoAn.Controllers
         {
             _context = context;
         }
-
-        [HttpGet("GetUser")]
-        public async Task<ActionResult<User>> GetUser()
+        //GET
+        [HttpGet("Post")]
+        public async Task<ActionResult> GetPost() 
         {
-            string email = HttpContext.User.Identity!.Name!;
-
-            var user = await _context.Users.Where(x => x.Email == email).FirstOrDefaultAsync();
-            user!.Pass = null!;
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(new { Alert = user });
-        }
-
-        // PUT: api/Users/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(string id, User user)
-        {
-            if (id != user.UserId)
-            {
-                return Ok(new { Alert = "Không đúng id" });
-            }
-
-            _context.Entry(user).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                return Ok( await _context.Posts
+                .Select(i => new {
+                    i.User!.FullName,
+                    i.User.UsersInfo!.Avatar,
+                    i.PostId,
+                    i.Content,
+                    i.Image1,
+                    i.Image2,
+                    i.Image3,
+                    i.AccessModifier,
+                    datepost = i.DatePost.ToString("dd-MM-yyyy"),
+                    like = _context.Likes.Where(l => l.PostId == i.PostId).Count(),
+                    cmt = _context.Comments.Where(c => c.PostId == i.PostId).Count(),
+                    share = _context.Likes.Where(s => s.PostId == i.PostId).Count(),
+                }).ToListAsync());
             }
-            catch (DbUpdateConcurrencyException)
+            catch
             {
-                if (!UserExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
-            return Ok(new { Alert = "Sửa thành công" });
         }
-
-        // POST: api/Users
-        [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        
+        //POST
+        [HttpPost("NewPost")]
+        public async Task<ActionResult> PostPost(Post post)
         {
-            _context.Users.Add(user);
             try
             {
+                post.Image1 = "Khong";
+                post.Image2 = "Khong";
+                post.Image3 = "Khong";
+                post.DatePost = DateTime.Now;
+
+                _context.Posts.Add(post);
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateException)
+            catch
             {
-                if (UserExists(user.UserId))
-                {
-                    return Ok(new {Alert = "Đã tồn tại"});
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
-
-            return CreatedAtAction("GetUser", new { id = user.UserId }, user);
-        }
-
-        // DELETE: api/Users/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
-        {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
-            {
-                return Ok(new { Alert = "Không tồn tại " });
-            }
-
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { Alert = "Đã xóa " + id });
-        }
-
-        private bool UserExists(string id)
-        {
-            return _context.Users.Any(e => e.UserId == id);
+            return CreatedAtAction("PostPost",post);
         }
     }
 }
