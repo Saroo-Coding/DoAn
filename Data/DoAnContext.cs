@@ -22,6 +22,8 @@ public partial class DoAnContext : DbContext
 
     public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
+    public virtual DbSet<Share> Shares { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<UsersInfo> UsersInfos { get; set; }
@@ -142,6 +144,7 @@ public partial class DoAnContext : DbContext
             entity.Property(e => e.Content)
                 .HasMaxLength(3000)
                 .HasColumnName("content");
+            entity.Property(e => e.DatePost).HasColumnName("date_post");
             entity.Property(e => e.Image1)
                 .HasMaxLength(300)
                 .HasColumnName("image1");
@@ -154,9 +157,6 @@ public partial class DoAnContext : DbContext
             entity.Property(e => e.UserId)
                 .HasMaxLength(30)
                 .HasColumnName("user_id");
-            entity.Property(e => e.DatePost)
-                .HasColumnType("datetime")
-                .HasColumnName("date_post");
 
             entity.HasOne(d => d.User).WithMany(p => p.Posts)
                 .HasForeignKey(d => d.UserId)
@@ -186,8 +186,36 @@ public partial class DoAnContext : DbContext
 
             entity.HasOne(d => d.User).WithMany(p => p.RefreshTokens)
                 .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("user_token");
+        });
+
+        modelBuilder.Entity<Share>(entity =>
+        {
+            entity.HasKey(e => e.ShareId).HasName("PRIMARY");
+
+            entity.ToTable("share");
+
+            entity.HasIndex(e => e.PostId, "share_post");
+
+            entity.HasIndex(e => e.UserId, "user_share");
+
+            entity.Property(e => e.ShareId)
+                .HasColumnType("int(11)")
+                .HasColumnName("share_id");
+            entity.Property(e => e.PostId)
+                .HasColumnType("int(11)")
+                .HasColumnName("post_id");
+            entity.Property(e => e.UserId)
+                .HasMaxLength(30)
+                .HasColumnName("user_id");
+
+            entity.HasOne(d => d.Post).WithMany(p => p.Shares)
+                .HasForeignKey(d => d.PostId)
+                .HasConstraintName("share_post");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Shares)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("user_share");
         });
 
         modelBuilder.Entity<User>(entity =>

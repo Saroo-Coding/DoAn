@@ -24,6 +24,7 @@ namespace DoAn.Controllers
             {
                 return Ok( await _context.Posts
                 .Select(i => new {
+                    i.UserId,
                     i.User!.FullName,
                     i.User.UsersInfo!.Avatar,
                     i.PostId,
@@ -33,9 +34,10 @@ namespace DoAn.Controllers
                     i.Image3,
                     i.AccessModifier,
                     datepost = i.DatePost.ToString("dd-MM-yyyy"),
+                    comment = _context.Comments.Select(i => new {i.CmId, i.PostId, i.User.FullName, i.User.UsersInfo!.Avatar, i.Content}).Where(c => c.PostId == i.PostId).ToList(),
                     like = _context.Likes.Where(l => l.PostId == i.PostId).Count(),
                     cmt = _context.Comments.Where(c => c.PostId == i.PostId).Count(),
-                    share = _context.Likes.Where(s => s.PostId == i.PostId).Count(),
+                    share = _context.Shares.Where(s => s.PostId == i.PostId).Count(),
                 }).ToListAsync());
             }
             catch
@@ -43,7 +45,7 @@ namespace DoAn.Controllers
                 throw;
             }
         }
-        
+
         //POST
         [HttpPost("NewPost")]
         public async Task<ActionResult> PostPost(Post post)
@@ -63,6 +65,33 @@ namespace DoAn.Controllers
                 throw;
             }
             return CreatedAtAction("PostPost",post);
+        }
+
+        //DELETE
+        [HttpDelete("XoaPost/{id}")]
+        public async Task<ActionResult> XoaPost(int id)
+        {
+            try
+            {
+                if (_context.Posts == null)
+                {
+                    return NotFound();
+                }
+                var post = await _context.Posts.FindAsync(id);
+                if (post == null)
+                {
+                    return NotFound();
+                }
+
+                _context.Posts.Remove(post);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch
+            {
+                throw;
+            }
         }
     }
 }

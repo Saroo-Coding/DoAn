@@ -29,6 +29,8 @@ public partial class User
 
     public virtual ICollection<RefreshToken> RefreshTokens { get; } = new List<RefreshToken>();
 
+    public virtual ICollection<Share> Shares { get; } = new List<Share>();
+
     public virtual UsersInfo? UsersInfo { get; set; }
 
     public virtual ICollection<UsersRela> UsersRelaFollwingNavigations { get; } = new List<UsersRela>();

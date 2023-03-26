@@ -7,7 +7,7 @@ public partial class UsersInfo
 {
     public string UserId { get; set; } = null!;
 
-    public string Avatar { get; set; }= null!;
+    public string Avatar { get; set; } = null!;
 
     public string Sex { get; set; } = null!;
 
