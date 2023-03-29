@@ -34,7 +34,7 @@ namespace DoAn.Controllers
                     i.Image3,
                     i.AccessModifier,
                     datepost = i.DatePost.ToString("dd-MM-yyyy"),
-                    comment = _context.Comments.Select(i => new {i.CmId, i.PostId, i.User.FullName, i.User.UsersInfo!.Avatar, i.Content}).Where(c => c.PostId == i.PostId).ToList(),
+                    comment = _context.Comments.Select(i => new {i.CmId, i.PostId, i.User!.FullName, i.User.UsersInfo!.Avatar, i.Content}).Where(c => c.PostId == i.PostId).ToList(),
                     like = _context.Likes.Where(l => l.PostId == i.PostId).Count(),
                     cmt = _context.Comments.Where(c => c.PostId == i.PostId).Count(),
                     share = _context.Shares.Where(s => s.PostId == i.PostId).Count(),
@@ -65,6 +65,20 @@ namespace DoAn.Controllers
                 throw;
             }
             return CreatedAtAction("PostPost",post);
+        }
+        [HttpPost("NewCmt")]
+        public async Task<ActionResult> Cmt(Comment comment)
+        {
+            try
+            {
+                _context.Comments.Add(comment);
+                await _context.SaveChangesAsync();
+            }
+            catch
+            {
+                throw;
+            }
+            return CreatedAtAction("Cmt", comment);
         }
 
         //DELETE

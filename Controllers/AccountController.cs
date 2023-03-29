@@ -1,14 +1,11 @@
 ﻿using DoAn.Data;
-using DoAn.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
 
 namespace DoAn.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
@@ -27,8 +24,9 @@ namespace DoAn.Controllers
             var user = await _context.Users
                 .Where(i => i.UserId == id)
                 .Select(i => new { i.UserId, i.FullName, i.Phone, i.Email,
-                    i.UsersInfo!.Avatar, i.UsersInfo!.Sex, i.UsersInfo.StudyAt, i.UsersInfo.WorkingAt, i.UsersInfo.Favorites
-                    , i.UsersInfo.OtherInfo, i.UsersInfo.DateOfBirth}).FirstOrDefaultAsync();
+                    i.UsersInfo!.Avatar,i.UsersInfo!.AnhBia ,i.UsersInfo!.Sex, i.UsersInfo.StudyAt, i.UsersInfo.WorkingAt, i.UsersInfo.Favorites
+                    , i.UsersInfo.OtherInfo, i.UsersInfo.DateOfBirth
+                }).FirstOrDefaultAsync();
             if (user == null)
             {
                 return NotFound();
@@ -40,8 +38,22 @@ namespace DoAn.Controllers
         public async Task<ActionResult> GetMyPost(string id)
         {
             var user = await _context.Posts.Where(i => i.UserId == id)
-                .Select(i => new { i.PostId, i.Content, i.Image1, i.Image2, i.Image3, i.AccessModifier, i.DatePost })
-                .ToListAsync();
+                .Select(i => new {
+                    i.UserId,
+                    i.User!.FullName,
+                    i.User.UsersInfo!.Avatar,
+                    i.PostId,
+                    i.Content,
+                    i.Image1,
+                    i.Image2,
+                    i.Image3,
+                    i.AccessModifier,
+                    datepost = i.DatePost.ToString("dd-MM-yyyy"),
+                    comment = _context.Comments.Select(i => new { i.CmId, i.PostId, i.User!.FullName, i.User.UsersInfo!.Avatar, i.Content }).Where(c => c.PostId == i.PostId).ToList(),
+                    like = _context.Likes.Where(l => l.PostId == i.PostId).Count(),
+                    cmt = _context.Comments.Where(c => c.PostId == i.PostId).Count(),
+                    share = _context.Shares.Where(s => s.PostId == i.PostId).Count(),
+                }).ToListAsync();
 
             if (user == null)
             {

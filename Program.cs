@@ -54,7 +54,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AnotherPolicy",
                       policy =>
                       {
-                          policy.WithOrigins("https://earth-project-x.glitch.me", "http://localhost:3000").AllowAnyHeader().AllowAnyMethod();
+                          policy.WithOrigins("http://127.0.0.1:8000", "http://localhost:3000").AllowAnyHeader().AllowAnyMethod();
                       });
 });
 

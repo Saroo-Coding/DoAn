@@ -9,6 +9,8 @@ public partial class UsersInfo
 
     public string Avatar { get; set; } = null!;
 
+    public string AnhBia { get; set; } = null!;
+
     public string Sex { get; set; } = null!;
 
     public bool? IsActive { get; set; }

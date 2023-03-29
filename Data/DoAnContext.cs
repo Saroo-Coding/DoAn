@@ -138,21 +138,20 @@ public partial class DoAnContext : DbContext
                 .HasColumnType("int(11)")
                 .HasColumnName("post_id");
             entity.Property(e => e.AccessModifier)
-                .HasMaxLength(127)
-                .HasDefaultValueSql("'public'")
+                .HasMaxLength(10)
                 .HasColumnName("access_modifier");
             entity.Property(e => e.Content)
-                .HasMaxLength(3000)
+                .HasColumnType("mediumtext")
                 .HasColumnName("content");
             entity.Property(e => e.DatePost).HasColumnName("date_post");
             entity.Property(e => e.Image1)
-                .HasMaxLength(300)
+                .HasColumnType("mediumtext")
                 .HasColumnName("image1");
             entity.Property(e => e.Image2)
-                .HasMaxLength(300)
+                .HasColumnType("mediumtext")
                 .HasColumnName("image2");
             entity.Property(e => e.Image3)
-                .HasMaxLength(300)
+                .HasColumnType("mediumtext")
                 .HasColumnName("image3");
             entity.Property(e => e.UserId)
                 .HasMaxLength(30)
@@ -253,8 +252,11 @@ public partial class DoAnContext : DbContext
             entity.Property(e => e.UserId)
                 .HasMaxLength(30)
                 .HasColumnName("user_id");
+            entity.Property(e => e.AnhBia)
+                .HasColumnType("mediumtext")
+                .HasColumnName("anh_bia");
             entity.Property(e => e.Avatar)
-                .HasMaxLength(300)
+                .HasColumnType("mediumtext")
                 .HasColumnName("avatar");
             entity.Property(e => e.DateOfBirth).HasColumnName("date_of_birth");
             entity.Property(e => e.Favorites)
