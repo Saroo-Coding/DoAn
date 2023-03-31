@@ -25,7 +25,8 @@ namespace DoAn.Controllers
                 .Where(i => i.UserId == id)
                 .Select(i => new { i.UserId, i.FullName, i.Phone, i.Email,
                     i.UsersInfo!.Avatar,i.UsersInfo!.AnhBia ,i.UsersInfo!.Sex, i.UsersInfo.StudyAt, i.UsersInfo.WorkingAt, i.UsersInfo.Favorites
-                    , i.UsersInfo.OtherInfo, i.UsersInfo.DateOfBirth
+                    , i.UsersInfo.OtherInfo, i.UsersInfo.DateOfBirth,
+                    friend = _context.Friends.Where(f => f.UserId == i.UserId).Count(),
                 }).FirstOrDefaultAsync();
             if (user == null)
             {

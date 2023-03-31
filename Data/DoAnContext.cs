@@ -16,6 +16,8 @@ public partial class DoAnContext : DbContext
 
     public virtual DbSet<Friend> Friends { get; set; }
 
+    public virtual DbSet<FriendRequest> FriendRequests { get; set; }
+
     public virtual DbSet<Like> Likes { get; set; }
 
     public virtual DbSet<Post> Posts { get; set; }
@@ -95,6 +97,35 @@ public partial class DoAnContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.FriendUsers)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("friend_add");
+        });
+
+        modelBuilder.Entity<FriendRequest>(entity =>
+        {
+            entity.HasKey(e => e.ReqId).HasName("PRIMARY");
+
+            entity.ToTable("friend_request");
+
+            entity.HasIndex(e => e.FromUser, "from_user");
+
+            entity.HasIndex(e => e.ToUser, "to_user");
+
+            entity.Property(e => e.ReqId)
+                .HasColumnType("int(11)")
+                .HasColumnName("req_id");
+            entity.Property(e => e.FromUser)
+                .HasMaxLength(30)
+                .HasColumnName("from_user");
+            entity.Property(e => e.ToUser)
+                .HasMaxLength(30)
+                .HasColumnName("to_user");
+
+            entity.HasOne(d => d.FromUserNavigation).WithMany(p => p.FriendRequestFromUserNavigations)
+                .HasForeignKey(d => d.FromUser)
+                .HasConstraintName("from_user");
+
+            entity.HasOne(d => d.ToUserNavigation).WithMany(p => p.FriendRequestToUserNavigations)
+                .HasForeignKey(d => d.ToUser)
+                .HasConstraintName("to_user");
         });
 
         modelBuilder.Entity<Like>(entity =>
