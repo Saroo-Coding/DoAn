@@ -19,13 +19,13 @@ namespace DoAn.Controllers
 
         //GET 
         [HttpGet("IsMe/{id}")]
-       public async Task<ActionResult> Get(string id)
+        public async Task<ActionResult> Get(string id)
         {
             var user = await _context.Users
                 .Where(i => i.UserId == id)
                 .Select(i => new { i.UserId, i.FullName, i.Phone, i.Email,
-                    i.UsersInfo!.Avatar,i.UsersInfo!.AnhBia ,i.UsersInfo!.Sex, i.UsersInfo.StudyAt, i.UsersInfo.WorkingAt, i.UsersInfo.Favorites
-                    , i.UsersInfo.OtherInfo, i.UsersInfo.DateOfBirth,
+                    i.UsersInfo!.Avatar,i.UsersInfo!.AnhBia ,i.Sex, i.UsersInfo.StudyAt, i.UsersInfo.WorkingAt, i.UsersInfo.Favorites
+                    , i.UsersInfo.OtherInfo, i.BirthDay,
                     friend = _context.Friends.Where(f => f.UserId == i.UserId).Count(),
                 }).FirstOrDefaultAsync();
             if (user == null)
@@ -81,7 +81,7 @@ namespace DoAn.Controllers
         public async Task<ActionResult> GetComment(int id)
         {
             var user = await _context.Comments.Where(i => i.PostId == id)
-                .Select(i => new { i.User.UserId, i.User.FullName, i.User.UsersInfo!.Avatar, i.Content})
+                .Select(i => new { i.User!.UserId, i.User.FullName, i.User.UsersInfo!.Avatar, i.Content})
                 .ToListAsync();
 
             if (user == null)
@@ -95,9 +95,8 @@ namespace DoAn.Controllers
         public async Task<ActionResult> GetFriend(string id)
         {
             var user = await _context.Friends.Where(i => i.UserId == id)
-                .Select(i => new { i.AddFriendNavigation.UserId, i.AddFriendNavigation.FullName, i.AddFriendNavigation.UsersInfo!.Avatar })
+                .Select(i => new {i.FriendId, i.AddFriendNavigation.UserId, i.AddFriendNavigation.FullName, i.AddFriendNavigation.UsersInfo!.Avatar })
                 .ToListAsync();
-
             if (user == null)
             {
                 return NotFound();
@@ -119,8 +118,39 @@ namespace DoAn.Controllers
             return Ok(user);
         }
 
-        //[HttpGet("FollowMe/{id}")]
-    
         //Post
+        [HttpPut("EditImage/{id}")]
+        public async Task<IActionResult> EditImage(string id, UsersInfo usersInfo)
+        {
+            if (id != usersInfo.UserId)
+            {
+                return BadRequest();
+            }
+            
+            UsersInfo infor = await _context.UsersInfos.SingleAsync(i => i.UserId == id);
+
+            if (usersInfo.Avatar != null && infor.Avatar != usersInfo.Avatar)
+            {
+                infor.Avatar = usersInfo.Avatar;
+            }
+            if (usersInfo.AnhBia != null && infor.AnhBia != usersInfo.AnhBia)
+            {
+                infor.AnhBia = usersInfo.AnhBia;
+            }
+            if (usersInfo.OtherInfo != null && infor.OtherInfo != usersInfo.OtherInfo)
+            {
+                infor.OtherInfo = usersInfo.OtherInfo;
+            }
+            
+            _context.Entry(infor).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch {throw;}
+
+            return NoContent();
+        }
     }
 }

@@ -122,7 +122,7 @@ namespace DoAn.Controllers
 
         // POST
         [HttpPost]
-        public async Task<ActionResult> PostUser([FromForm]User user)
+        public async Task<ActionResult> PostUser(User user)
         {
             try
             {
@@ -135,21 +135,22 @@ namespace DoAn.Controllers
                 }
 
                 user.UserId = uuid.Substring(0, 15);
-                user.FullName = Request.Form["firstname"] + " " + Request.Form["lastname"];
-                user.Pass = MD5Hash(Request.Form["pass"]!);
+                user.Pass = MD5Hash(user.Pass);
                 user.CreatedAt = DateTime.Now;
 
                 UsersInfo usersInfo = new UsersInfo();
                 usersInfo.UserId = user.UserId;
-                usersInfo.Avatar = "https://cdn1.iconfinder.com/data/icons/user-pictures/100/unknown-512.png";
-                usersInfo.Sex = Request.Form["sex"]!;
+                if(user.Sex == "Nam")
+                    usersInfo.Avatar = "https://firebasestorage.googleapis.com/v0/b/doan-ad756.appspot.com/o/Sever%2Fuser_male.jpg?alt=media&token=5a082919-c61f-4b93-80ac-06267ca14b9f";
+                if(user.Sex == "Nữ")
+                    usersInfo.Avatar = "https://firebasestorage.googleapis.com/v0/b/doan-ad756.appspot.com/o/Sever%2Fuser_female.jpg?alt=media&token=0bf68592-c458-4175-9690-b7886e29eb96";
+                usersInfo.AnhBia = "https://www.shutterstock.com/image-vector/hello-world-day-calligraphy-modern-260nw-2209558865.jpg";
                 usersInfo.IsActive = true;
                 usersInfo.StudyAt = "";
                 usersInfo.WorkingAt = "";
                 usersInfo.Favorites = "";
                 usersInfo.OtherInfo = "";
-                usersInfo.DateOfBirth = Convert.ToDateTime(Request.Form["date"]);
-
+                
                 _context.UsersInfos.Add(usersInfo);
                 _context.Users.Add(user);
                 if (UserExists(user.Email, user.Phone))

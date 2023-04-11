@@ -9,17 +9,25 @@ public partial class User
 
     public string? FullName { get; set; }
 
+    public string Sex { get; set; } = null!;
+
     public string Phone { get; set; } = null!;
 
     public string Email { get; set; } = null!;
 
     public string Pass { get; set; } = null!;
 
+    public DateTime? BirthDay { get; set; }
+
     public DateTime CreatedAt { get; set; }
 
     public virtual ICollection<Comment> Comments { get; } = new List<Comment>();
 
     public virtual ICollection<Friend> FriendAddFriendNavigations { get; } = new List<Friend>();
+
+    public virtual ICollection<FriendRequest> FriendRequestFromUserNavigations { get; } = new List<FriendRequest>();
+
+    public virtual ICollection<FriendRequest> FriendRequestToUserNavigations { get; } = new List<FriendRequest>();
 
     public virtual ICollection<Friend> FriendUsers { get; } = new List<Friend>();
 

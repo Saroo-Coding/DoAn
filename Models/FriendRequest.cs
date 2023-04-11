@@ -11,7 +11,7 @@ public partial class FriendRequest
 
     public string ToUser { get; set; } = null!;
 
-    public virtual User FromUserNavigation { get; set; } = null!;
+    public virtual User? FromUserNavigation { get; set; }
 
-    public virtual User ToUserNavigation { get; set; } = null!;
+    public virtual User? ToUserNavigation { get; set; }
 }
