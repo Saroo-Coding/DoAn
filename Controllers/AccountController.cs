@@ -52,6 +52,7 @@ namespace DoAn.Controllers
                     datepost = i.DatePost.ToString("dd-MM-yyyy"),
                     comment = _context.Comments.Select(i => new { i.CmId, i.PostId, i.User!.FullName, i.User.UsersInfo!.Avatar, i.Content }).Where(c => c.PostId == i.PostId).ToList(),
                     like = _context.Likes.Where(l => l.PostId == i.PostId).Count(),
+                    liked = (_context.Likes.Where(l => l.PostId == i.PostId && l.UserId == id)).Any(),
                     cmt = _context.Comments.Where(c => c.PostId == i.PostId).Count(),
                     share = _context.Shares.Where(s => s.PostId == i.PostId).Count(),
                 }).ToListAsync();
@@ -67,7 +68,7 @@ namespace DoAn.Controllers
         public async Task<ActionResult> GetLikePost(int id) 
         {
             var user = await _context.Likes.Where(i => i.PostId == id)
-                .Select(i => new { i.User.UserId, i.User.FullName,i.User.UsersInfo!.Avatar})
+                .Select(i => new { i.User!.UserId, i.User.FullName,i.User.UsersInfo!.Avatar})
                 .ToListAsync();
 
             if (user == null)
