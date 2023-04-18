@@ -27,6 +27,7 @@ namespace DoAn.Controllers
                     i.UsersInfo!.Avatar,i.UsersInfo!.AnhBia ,i.Sex, i.UsersInfo.StudyAt, i.UsersInfo.WorkingAt, i.UsersInfo.Favorites
                     , i.UsersInfo.OtherInfo, i.BirthDay,
                     friend = _context.Friends.Where(f => f.UserId == i.UserId).Count(),
+                    group = _context.GroupMembers.Where(m => m.UserId == i.UserId).Select( m => new {m.GroupId, m.Group.NameGroup, m.Group.Avatar}).ToList()
                 }).FirstOrDefaultAsync();
             if (user == null)
             {

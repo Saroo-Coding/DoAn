@@ -21,6 +21,8 @@ public partial class User
 
     public DateTime CreatedAt { get; set; }
 
+    public virtual ICollection<CmtGroupPost> CmtGroupPosts { get; } = new List<CmtGroupPost>();
+
     public virtual ICollection<Comment> Comments { get; } = new List<Comment>();
 
     public virtual ICollection<Friend> FriendAddFriendNavigations { get; } = new List<Friend>();
@@ -30,6 +32,16 @@ public partial class User
     public virtual ICollection<FriendRequest> FriendRequestToUserNavigations { get; } = new List<FriendRequest>();
 
     public virtual ICollection<Friend> FriendUsers { get; } = new List<Friend>();
+
+    public virtual ICollection<GroupMember> GroupMembers { get; } = new List<GroupMember>();
+
+    public virtual ICollection<GroupPost> GroupPosts { get; } = new List<GroupPost>();
+
+    public virtual ICollection<Group> Groups { get; } = new List<Group>();
+
+    public virtual ICollection<JoinGroupReq> JoinGroupReqs { get; } = new List<JoinGroupReq>();
+
+    public virtual ICollection<LikeGroupPost> LikeGroupPosts { get; } = new List<LikeGroupPost>();
 
     public virtual ICollection<Like> Likes { get; } = new List<Like>();
 

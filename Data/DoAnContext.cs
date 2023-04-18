@@ -12,13 +12,25 @@ public partial class DoAnContext : DbContext
     {
     }
 
+    public virtual DbSet<CmtGroupPost> CmtGroupPosts { get; set; }
+
     public virtual DbSet<Comment> Comments { get; set; }
 
     public virtual DbSet<Friend> Friends { get; set; }
 
     public virtual DbSet<FriendRequest> FriendRequests { get; set; }
 
+    public virtual DbSet<Group> Groups { get; set; }
+
+    public virtual DbSet<GroupMember> GroupMembers { get; set; }
+
+    public virtual DbSet<GroupPost> GroupPosts { get; set; }
+
+    public virtual DbSet<JoinGroupReq> JoinGroupReqs { get; set; }
+
     public virtual DbSet<Like> Likes { get; set; }
+
+    public virtual DbSet<LikeGroupPost> LikeGroupPosts { get; set; }
 
     public virtual DbSet<Post> Posts { get; set; }
 
@@ -37,6 +49,38 @@ public partial class DoAnContext : DbContext
         modelBuilder
             .UseCollation("utf8mb4_general_ci")
             .HasCharSet("utf8mb4");
+
+        modelBuilder.Entity<CmtGroupPost>(entity =>
+        {
+            entity.HasKey(e => e.CmtId).HasName("PRIMARY");
+
+            entity.ToTable("cmt_group_post");
+
+            entity.HasIndex(e => e.PostId, "cmt_group");
+
+            entity.HasIndex(e => e.UserId, "user_cmt_grp");
+
+            entity.Property(e => e.CmtId)
+                .HasColumnType("int(11)")
+                .HasColumnName("cmt_id");
+            entity.Property(e => e.Content)
+                .HasColumnType("text")
+                .HasColumnName("content");
+            entity.Property(e => e.PostId)
+                .HasColumnType("int(11)")
+                .HasColumnName("post_id");
+            entity.Property(e => e.UserId)
+                .HasMaxLength(30)
+                .HasColumnName("user_id");
+
+            entity.HasOne(d => d.Post).WithMany(p => p.CmtGroupPosts)
+                .HasForeignKey(d => d.PostId)
+                .HasConstraintName("cmt_group");
+
+            entity.HasOne(d => d.User).WithMany(p => p.CmtGroupPosts)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("user_cmt_grp");
+        });
 
         modelBuilder.Entity<Comment>(entity =>
         {
@@ -128,6 +172,142 @@ public partial class DoAnContext : DbContext
                 .HasConstraintName("to_user");
         });
 
+        modelBuilder.Entity<Group>(entity =>
+        {
+            entity.HasKey(e => e.GroupId).HasName("PRIMARY");
+
+            entity.ToTable("groups");
+
+            entity.HasIndex(e => e.UserId, "admin_group");
+
+            entity.Property(e => e.GroupId)
+                .HasColumnType("int(11)")
+                .HasColumnName("group_id");
+            entity.Property(e => e.Avatar)
+                .HasColumnType("mediumtext")
+                .HasColumnName("avatar");
+            entity.Property(e => e.CoverImage)
+                .HasColumnType("mediumtext")
+                .HasColumnName("cover_image");
+            entity.Property(e => e.Intro)
+                .HasColumnType("text")
+                .HasColumnName("intro");
+            entity.Property(e => e.NameGroup)
+                .HasColumnType("text")
+                .HasColumnName("name_group");
+            entity.Property(e => e.StatusGroup)
+                .IsRequired()
+                .HasDefaultValueSql("'1'")
+                .HasColumnName("status_group");
+            entity.Property(e => e.UserId)
+                .HasMaxLength(30)
+                .HasColumnName("user_id");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Groups)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("admin_group");
+        });
+
+        modelBuilder.Entity<GroupMember>(entity =>
+        {
+            entity.HasKey(e => e.MemberId).HasName("PRIMARY");
+
+            entity.ToTable("group_member");
+
+            entity.HasIndex(e => e.GroupId, "join_group");
+
+            entity.HasIndex(e => e.UserId, "user_join");
+
+            entity.Property(e => e.MemberId)
+                .HasColumnType("int(11)")
+                .HasColumnName("member_id");
+            entity.Property(e => e.GroupId)
+                .HasColumnType("int(11)")
+                .HasColumnName("group_id");
+            entity.Property(e => e.UserId)
+                .HasMaxLength(30)
+                .HasColumnName("user_id");
+
+            entity.HasOne(d => d.Group).WithMany(p => p.GroupMembers)
+                .HasForeignKey(d => d.GroupId)
+                .HasConstraintName("join_group");
+
+            entity.HasOne(d => d.User).WithMany(p => p.GroupMembers)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("user_join");
+        });
+
+        modelBuilder.Entity<GroupPost>(entity =>
+        {
+            entity.HasKey(e => e.PostId).HasName("PRIMARY");
+
+            entity.ToTable("group_post");
+
+            entity.HasIndex(e => e.GroupId, "post_group");
+
+            entity.HasIndex(e => e.UserId, "user_group_post");
+
+            entity.Property(e => e.PostId)
+                .HasColumnType("int(11)")
+                .HasColumnName("post_id");
+            entity.Property(e => e.Content)
+                .HasColumnType("mediumtext")
+                .HasColumnName("content");
+            entity.Property(e => e.DatePost).HasColumnName("date_post");
+            entity.Property(e => e.GroupId)
+                .HasColumnType("int(11)")
+                .HasColumnName("group_id");
+            entity.Property(e => e.Img1)
+                .HasColumnType("mediumtext")
+                .HasColumnName("img1");
+            entity.Property(e => e.Img2)
+                .HasColumnType("mediumtext")
+                .HasColumnName("img2");
+            entity.Property(e => e.Img3)
+                .HasColumnType("mediumtext")
+                .HasColumnName("img3");
+            entity.Property(e => e.UserId)
+                .HasMaxLength(30)
+                .HasColumnName("user_id");
+
+            entity.HasOne(d => d.Group).WithMany(p => p.GroupPosts)
+                .HasForeignKey(d => d.GroupId)
+                .HasConstraintName("post_group");
+
+            entity.HasOne(d => d.User).WithMany(p => p.GroupPosts)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("user_group_post");
+        });
+
+        modelBuilder.Entity<JoinGroupReq>(entity =>
+        {
+            entity.HasKey(e => e.ReqId).HasName("PRIMARY");
+
+            entity.ToTable("join_group_req");
+
+            entity.HasIndex(e => e.GroupId, "req_group");
+
+            entity.HasIndex(e => e.UserId, "user_req");
+
+            entity.Property(e => e.ReqId)
+                .HasColumnType("int(11)")
+                .HasColumnName("req_id");
+            entity.Property(e => e.GroupId)
+                .HasColumnType("int(11)")
+                .HasColumnName("group_id");
+            entity.Property(e => e.UserId)
+                .HasMaxLength(30)
+                .HasColumnName("user_id");
+
+            entity.HasOne(d => d.Group).WithMany(p => p.JoinGroupReqs)
+                .HasForeignKey(d => d.GroupId)
+                .HasConstraintName("req_group");
+
+            entity.HasOne(d => d.User).WithMany(p => p.JoinGroupReqs)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("user_req");
+        });
+
         modelBuilder.Entity<Like>(entity =>
         {
             entity.HasKey(e => e.LikeId).HasName("PRIMARY");
@@ -155,6 +335,35 @@ public partial class DoAnContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Likes)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("user_like");
+        });
+
+        modelBuilder.Entity<LikeGroupPost>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("like_group_post");
+
+            entity.HasIndex(e => e.PostId, "group_post");
+
+            entity.HasIndex(e => e.UserId, "member_like");
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.PostId)
+                .HasColumnType("int(11)")
+                .HasColumnName("post_id");
+            entity.Property(e => e.UserId)
+                .HasMaxLength(30)
+                .HasColumnName("user_id");
+
+            entity.HasOne(d => d.Post).WithMany(p => p.LikeGroupPosts)
+                .HasForeignKey(d => d.PostId)
+                .HasConstraintName("group_post");
+
+            entity.HasOne(d => d.User).WithMany(p => p.LikeGroupPosts)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("member_like");
         });
 
         modelBuilder.Entity<Post>(entity =>
@@ -257,6 +466,7 @@ public partial class DoAnContext : DbContext
             entity.Property(e => e.UserId)
                 .HasMaxLength(30)
                 .HasColumnName("user_id");
+            entity.Property(e => e.BirthDay).HasColumnName("birth_day");
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("created_at");
@@ -266,16 +476,15 @@ public partial class DoAnContext : DbContext
             entity.Property(e => e.FullName)
                 .HasMaxLength(127)
                 .HasColumnName("full_name");
-            entity.Property(e => e.Sex)
-                .HasMaxLength(5)
-                .HasColumnName("sex");
             entity.Property(e => e.Pass)
                 .HasMaxLength(50)
                 .HasColumnName("pass");
             entity.Property(e => e.Phone)
                 .HasMaxLength(12)
                 .HasColumnName("phone");
-            entity.Property(e => e.BirthDay).HasColumnName("birth_day");
+            entity.Property(e => e.Sex)
+                .HasMaxLength(5)
+                .HasColumnName("sex");
         });
 
         modelBuilder.Entity<UsersInfo>(entity =>
