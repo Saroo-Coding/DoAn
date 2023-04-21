@@ -21,13 +21,17 @@ namespace DoAn.Controllers
         [HttpGet("IsMe/{id}")]
         public async Task<ActionResult> Get(string id)
         {
+            var allGroup = _context.Groups.Select(g => new { g.GroupId, g.NameGroup, g.Avatar }).ToList();
+            var groups = _context.GroupMembers.Where(m => m.UserId == id).Select(m => new { m.GroupId, m.Group.NameGroup, m.Group.Avatar }).ToList();
+            var notInGroups = allGroup.Except(groups).ToList();
             var user = await _context.Users
                 .Where(i => i.UserId == id)
                 .Select(i => new { i.UserId, i.FullName, i.Phone, i.Email,
                     i.UsersInfo!.Avatar,i.UsersInfo!.AnhBia ,i.Sex, i.UsersInfo.StudyAt, i.UsersInfo.WorkingAt, i.UsersInfo.Favorites
                     , i.UsersInfo.OtherInfo, i.BirthDay,
                     friend = _context.Friends.Where(f => f.UserId == i.UserId).Count(),
-                    group = _context.GroupMembers.Where(m => m.UserId == i.UserId).Select( m => new {m.GroupId, m.Group.NameGroup, m.Group.Avatar}).ToList()
+                    groups,
+                    notInGroups,
                 }).FirstOrDefaultAsync();
             if (user == null)
             {

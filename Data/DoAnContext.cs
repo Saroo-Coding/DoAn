@@ -178,8 +178,6 @@ public partial class DoAnContext : DbContext
 
             entity.ToTable("groups");
 
-            entity.HasIndex(e => e.UserId, "admin_group");
-
             entity.Property(e => e.GroupId)
                 .HasColumnType("int(11)")
                 .HasColumnName("group_id");
@@ -199,13 +197,6 @@ public partial class DoAnContext : DbContext
                 .IsRequired()
                 .HasDefaultValueSql("'1'")
                 .HasColumnName("status_group");
-            entity.Property(e => e.UserId)
-                .HasMaxLength(30)
-                .HasColumnName("user_id");
-
-            entity.HasOne(d => d.User).WithMany(p => p.Groups)
-                .HasForeignKey(d => d.UserId)
-                .HasConstraintName("admin_group");
         });
 
         modelBuilder.Entity<GroupMember>(entity =>
@@ -224,6 +215,10 @@ public partial class DoAnContext : DbContext
             entity.Property(e => e.GroupId)
                 .HasColumnType("int(11)")
                 .HasColumnName("group_id");
+            entity.Property(e => e.Position)
+                .HasMaxLength(7)
+                .HasDefaultValueSql("'member'")
+                .HasColumnName("position");
             entity.Property(e => e.UserId)
                 .HasMaxLength(30)
                 .HasColumnName("user_id");

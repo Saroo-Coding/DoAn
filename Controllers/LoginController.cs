@@ -1,5 +1,6 @@
 ﻿using DoAn.Data;
 using DoAn.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -118,7 +119,7 @@ namespace DoAn.Controllers
                 userWithToken!.RefreshToken = CreateAccessToken(user.UserId!);
             }
             return Ok(userWithToken);
-        }
+        }     
 
         // POST
         [HttpPost]

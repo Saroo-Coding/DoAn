@@ -11,6 +11,8 @@ public partial class GroupMember
 
     public string UserId { get; set; } = null!;
 
+    public string Position { get; set; } = null!;
+
     public virtual Group Group { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;

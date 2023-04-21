@@ -13,7 +13,8 @@ public partial class CmtGroupPost
 
     public string Content { get; set; } = null!;
 
-    public virtual GroupPost Post { get; set; } = null!;
+    public virtual GroupPost? Post { get; set; }
 
-    public virtual User User { get; set; } = null!;
+    public virtual User? User { get; set; }
+
 }

@@ -19,13 +19,13 @@ public partial class GroupPost
 
     public string Img3 { get; set; } = null!;
 
-    public DateOnly DatePost { get; set; }
+    public DateTime DatePost { get; set; }
 
     public virtual ICollection<CmtGroupPost> CmtGroupPosts { get; } = new List<CmtGroupPost>();
 
-    public virtual Group Group { get; set; } = null!;
+    public virtual Group? Group { get; set; }
 
     public virtual ICollection<LikeGroupPost> LikeGroupPosts { get; } = new List<LikeGroupPost>();
 
-    public virtual User User { get; set; } = null!;
+    public virtual User? User { get; set; }
 }

@@ -11,7 +11,7 @@ public partial class LikeGroupPost
 
     public int PostId { get; set; }
 
-    public virtual GroupPost Post { get; set; } = null!;
+    public virtual GroupPost? Post { get; set; }
 
-    public virtual User User { get; set; } = null!;
+    public virtual User? User { get; set; }
 }

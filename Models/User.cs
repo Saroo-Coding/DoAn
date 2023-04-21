@@ -37,8 +37,6 @@ public partial class User
 
     public virtual ICollection<GroupPost> GroupPosts { get; } = new List<GroupPost>();
 
-    public virtual ICollection<Group> Groups { get; } = new List<Group>();
-
     public virtual ICollection<JoinGroupReq> JoinGroupReqs { get; } = new List<JoinGroupReq>();
 
     public virtual ICollection<LikeGroupPost> LikeGroupPosts { get; } = new List<LikeGroupPost>();
