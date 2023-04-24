@@ -39,6 +39,12 @@ namespace DoAn.Controllers
             }
             return Ok(user);
         }
+        
+        [HttpGet("haha")]
+        public async Task<ActionResult> haha(string id)
+        {
+            return Ok("dit me may");
+        }
 
         [HttpGet("MyPost/{id}")]
         public async Task<ActionResult> GetMyPost(string id)
