@@ -34,6 +34,8 @@ public partial class DoAnContext : DbContext
 
     public virtual DbSet<Post> Posts { get; set; }
 
+    public virtual DbSet<PostNotify> PostNotifies { get; set; }
+
     public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
     public virtual DbSet<Share> Shares { get; set; }
@@ -47,14 +49,17 @@ public partial class DoAnContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
-            .UseCollation("utf8mb4_general_ci")
-            .HasCharSet("utf8mb4");
+            .UseCollation("latin1_swedish_ci")
+            .HasCharSet("latin1");
 
         modelBuilder.Entity<CmtGroupPost>(entity =>
         {
             entity.HasKey(e => e.CmtId).HasName("PRIMARY");
 
-            entity.ToTable("cmt_group_post");
+            entity
+                .ToTable("cmt_group_post")
+                .HasCharSet("utf8mb4")
+                .UseCollation("utf8mb4_general_ci");
 
             entity.HasIndex(e => e.PostId, "cmt_group");
 
@@ -86,7 +91,10 @@ public partial class DoAnContext : DbContext
         {
             entity.HasKey(e => e.CmId).HasName("PRIMARY");
 
-            entity.ToTable("comment");
+            entity
+                .ToTable("comment")
+                .HasCharSet("utf8mb4")
+                .UseCollation("utf8mb4_general_ci");
 
             entity.HasIndex(e => e.PostId, "comment_post");
 
@@ -118,7 +126,10 @@ public partial class DoAnContext : DbContext
         {
             entity.HasKey(e => e.FriendId).HasName("PRIMARY");
 
-            entity.ToTable("friend");
+            entity
+                .ToTable("friend")
+                .HasCharSet("utf8mb4")
+                .UseCollation("utf8mb4_general_ci");
 
             entity.HasIndex(e => e.AddFriend, "add_friends");
 
@@ -147,7 +158,10 @@ public partial class DoAnContext : DbContext
         {
             entity.HasKey(e => e.ReqId).HasName("PRIMARY");
 
-            entity.ToTable("friend_request");
+            entity
+                .ToTable("friend_request")
+                .HasCharSet("utf8mb4")
+                .UseCollation("utf8mb4_general_ci");
 
             entity.HasIndex(e => e.FromUser, "from_user");
 
@@ -176,7 +190,10 @@ public partial class DoAnContext : DbContext
         {
             entity.HasKey(e => e.GroupId).HasName("PRIMARY");
 
-            entity.ToTable("groups");
+            entity
+                .ToTable("groups")
+                .HasCharSet("utf8mb4")
+                .UseCollation("utf8mb4_general_ci");
 
             entity.Property(e => e.GroupId)
                 .HasColumnType("int(11)")
@@ -203,7 +220,10 @@ public partial class DoAnContext : DbContext
         {
             entity.HasKey(e => e.MemberId).HasName("PRIMARY");
 
-            entity.ToTable("group_member");
+            entity
+                .ToTable("group_member")
+                .HasCharSet("utf8mb4")
+                .UseCollation("utf8mb4_general_ci");
 
             entity.HasIndex(e => e.GroupId, "join_group");
 
@@ -236,7 +256,10 @@ public partial class DoAnContext : DbContext
         {
             entity.HasKey(e => e.PostId).HasName("PRIMARY");
 
-            entity.ToTable("group_post");
+            entity
+                .ToTable("group_post")
+                .HasCharSet("utf8mb4")
+                .UseCollation("utf8mb4_general_ci");
 
             entity.HasIndex(e => e.GroupId, "post_group");
 
@@ -278,7 +301,10 @@ public partial class DoAnContext : DbContext
         {
             entity.HasKey(e => e.ReqId).HasName("PRIMARY");
 
-            entity.ToTable("join_group_req");
+            entity
+                .ToTable("join_group_req")
+                .HasCharSet("utf8mb4")
+                .UseCollation("utf8mb4_general_ci");
 
             entity.HasIndex(e => e.GroupId, "req_group");
 
@@ -307,7 +333,10 @@ public partial class DoAnContext : DbContext
         {
             entity.HasKey(e => e.LikeId).HasName("PRIMARY");
 
-            entity.ToTable("likes");
+            entity
+                .ToTable("likes")
+                .HasCharSet("utf8mb4")
+                .UseCollation("utf8mb4_general_ci");
 
             entity.HasIndex(e => e.PostId, "post_id");
 
@@ -336,7 +365,10 @@ public partial class DoAnContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("like_group_post");
+            entity
+                .ToTable("like_group_post")
+                .HasCharSet("utf8mb4")
+                .UseCollation("utf8mb4_general_ci");
 
             entity.HasIndex(e => e.PostId, "group_post");
 
@@ -365,7 +397,10 @@ public partial class DoAnContext : DbContext
         {
             entity.HasKey(e => e.PostId).HasName("PRIMARY");
 
-            entity.ToTable("posts");
+            entity
+                .ToTable("posts")
+                .HasCharSet("utf8mb4")
+                .UseCollation("utf8mb4_general_ci");
 
             entity.HasIndex(e => e.UserId, "my_post");
 
@@ -397,11 +432,45 @@ public partial class DoAnContext : DbContext
                 .HasConstraintName("my_post");
         });
 
+        modelBuilder.Entity<PostNotify>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("post_notify");
+
+            entity.HasIndex(e => e.UserId, "notify_user");
+
+            entity.HasIndex(e => e.PostId, "post_notification");
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.PostId)
+                .HasColumnType("int(11)")
+                .HasColumnName("post_id");
+            entity.Property(e => e.UserId)
+                .HasMaxLength(30)
+                .HasColumnName("user_id")
+                .UseCollation("utf8mb4_general_ci")
+                .HasCharSet("utf8mb4");
+
+            entity.HasOne(d => d.Post).WithMany(p => p.PostNotifies)
+                .HasForeignKey(d => d.PostId)
+                .HasConstraintName("post_notification");
+
+            entity.HasOne(d => d.User).WithMany(p => p.PostNotifies)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("notify_user");
+        });
+
         modelBuilder.Entity<RefreshToken>(entity =>
         {
             entity.HasKey(e => e.TokenId).HasName("PRIMARY");
 
-            entity.ToTable("refresh_token");
+            entity
+                .ToTable("refresh_token")
+                .HasCharSet("utf8mb4")
+                .UseCollation("utf8mb4_general_ci");
 
             entity.HasIndex(e => e.UserId, "user_token");
 
@@ -427,7 +496,10 @@ public partial class DoAnContext : DbContext
         {
             entity.HasKey(e => e.ShareId).HasName("PRIMARY");
 
-            entity.ToTable("share");
+            entity
+                .ToTable("share")
+                .HasCharSet("utf8mb4")
+                .UseCollation("utf8mb4_general_ci");
 
             entity.HasIndex(e => e.PostId, "share_post");
 
@@ -456,7 +528,10 @@ public partial class DoAnContext : DbContext
         {
             entity.HasKey(e => e.UserId).HasName("PRIMARY");
 
-            entity.ToTable("users");
+            entity
+                .ToTable("users")
+                .HasCharSet("utf8mb4")
+                .UseCollation("utf8mb4_general_ci");
 
             entity.Property(e => e.UserId)
                 .HasMaxLength(30)
@@ -486,7 +561,10 @@ public partial class DoAnContext : DbContext
         {
             entity.HasKey(e => e.UserId).HasName("PRIMARY");
 
-            entity.ToTable("users_info");
+            entity
+                .ToTable("users_info")
+                .HasCharSet("utf8mb4")
+                .UseCollation("utf8mb4_general_ci");
 
             entity.Property(e => e.UserId)
                 .HasMaxLength(30)
@@ -520,7 +598,10 @@ public partial class DoAnContext : DbContext
         {
             entity.HasKey(e => e.RelaId).HasName("PRIMARY");
 
-            entity.ToTable("users_rela");
+            entity
+                .ToTable("users_rela")
+                .HasCharSet("utf8mb4")
+                .UseCollation("utf8mb4_general_ci");
 
             entity.HasIndex(e => e.UserId, "follow_me");
 

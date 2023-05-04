@@ -43,6 +43,8 @@ public partial class User
 
     public virtual ICollection<Like> Likes { get; } = new List<Like>();
 
+    public virtual ICollection<PostNotify> PostNotifies { get; } = new List<PostNotify>();
+
     public virtual ICollection<Post> Posts { get; } = new List<Post>();
 
     public virtual ICollection<RefreshToken> RefreshTokens { get; } = new List<RefreshToken>();
