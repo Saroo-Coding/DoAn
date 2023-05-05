@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using DoAn.Data;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Hosting;
 
 namespace DoAn.Controllers
 {
@@ -34,7 +35,8 @@ namespace DoAn.Controllers
         {
             try
             {
-                var post = await _context.Posts
+                var post = await _context.Posts.OrderByDescending(i => i.DatePost)
+                .Where(i => i.AccessModifier != "Chỉ mình t")
                 .Select(i => new{   
                     i.UserId,
                     i.User!.FullName,
@@ -49,7 +51,6 @@ namespace DoAn.Controllers
                     comment = _context.Comments.Select(i => new { i.CmId, i.PostId, i.User!.FullName, i.User.UsersInfo!.Avatar, i.Content }).Where(c => c.PostId == i.PostId).ToList(),
                     like = _context.Likes.Where(l => l.PostId == i.PostId).Count(),
                     liked = (_context.Likes.Where(l => l.PostId == i.PostId && l.UserId == id)).Any(),
-                    //cmt = _context.Comments.Where(c => c.PostId == i.PostId).Count(),
                     share = _context.Shares.Where(s => s.PostId == i.PostId).Count(),
                 }).ToListAsync();
                 return Ok(post);
@@ -143,6 +144,20 @@ namespace DoAn.Controllers
 
 
         //POST
+        [HttpPost("NewShare")]
+        public async Task<ActionResult> NewShare(Share share)
+        {
+            try
+            {
+                _context.Shares.Add(share);
+                await _context.SaveChangesAsync();
+            }
+            catch
+            {
+                throw;
+            }
+            return Ok();
+        }
         [HttpPost("NewLike")]
         public async Task<ActionResult> NewLike(Like like)
         {
@@ -155,7 +170,7 @@ namespace DoAn.Controllers
             {
                 throw;
             }
-            return CreatedAtAction("NewLike", like);
+            return Ok();
         }
         [HttpPost("NewPost")]
         public async Task<ActionResult> PostPost(Post post)
@@ -184,7 +199,7 @@ namespace DoAn.Controllers
             {
                 throw;
             }
-            return CreatedAtAction("Cmt", comment);
+            return Ok();
         }
         [HttpPost("Add_Friend")]
         public async Task<ActionResult> Add_Friend(FriendRequest friendRequest)
@@ -225,10 +240,6 @@ namespace DoAn.Controllers
         {
             try
             {
-                if (_context.Posts == null)
-                {
-                    return NotFound();
-                }
                 var post = await _context.Posts.FindAsync(id);
                 if (post == null)
                 {
@@ -238,6 +249,25 @@ namespace DoAn.Controllers
                 _context.Posts.Remove(post);
                 await _context.SaveChangesAsync();
 
+                return NoContent();
+            }
+            catch
+            {
+                throw;
+            }
+        }
+        [HttpDelete("DeleteShare/{id}")]
+        public async Task<ActionResult> DeleteShare(int id)
+        {
+            try
+            {
+                var req = await _context.Shares.FindAsync(id);
+                if (req == null)
+                {
+                    return NotFound();
+                }
+                _context.Shares.Remove(req);
+                await _context.SaveChangesAsync();
                 return NoContent();
             }
             catch

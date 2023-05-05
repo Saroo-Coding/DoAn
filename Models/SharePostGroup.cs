@@ -11,6 +11,10 @@ public partial class SharePostGroup
 
     public int PostId { get; set; }
 
+    public int GroupId { get; set; }
+
+    public virtual Group Group { get; set; } = null!;
+
     public virtual GroupPost Post { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;

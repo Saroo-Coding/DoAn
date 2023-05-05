@@ -551,11 +551,16 @@ public partial class DoAnContext : DbContext
 
             entity.HasIndex(e => e.PostId, "chiase_post");
 
+            entity.HasIndex(e => e.GroupId, "from_group");
+
             entity.HasIndex(e => e.UserId, "user_chiase");
 
             entity.Property(e => e.Id)
                 .HasColumnType("int(11)")
                 .HasColumnName("id");
+            entity.Property(e => e.GroupId)
+                .HasColumnType("int(11)")
+                .HasColumnName("group_id");
             entity.Property(e => e.PostId)
                 .HasColumnType("int(11)")
                 .HasColumnName("post_id");
@@ -564,6 +569,10 @@ public partial class DoAnContext : DbContext
                 .HasColumnName("user_id")
                 .UseCollation("utf8mb4_general_ci")
                 .HasCharSet("utf8mb4");
+
+            entity.HasOne(d => d.Group).WithMany(p => p.SharePostGroups)
+                .HasForeignKey(d => d.GroupId)
+                .HasConstraintName("from_group");
 
             entity.HasOne(d => d.Post).WithMany(p => p.SharePostGroups)
                 .HasForeignKey(d => d.PostId)

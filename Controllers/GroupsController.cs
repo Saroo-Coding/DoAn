@@ -88,6 +88,7 @@ namespace DoAn.Controllers
         }
 
         //POST
+
         [HttpPost("NewGroupPost")]
         public async Task<ActionResult> NewGroupPost(GroupPost post)
         {
