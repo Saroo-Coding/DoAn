@@ -11,6 +11,8 @@ public partial class Share
 
     public int PostId { get; set; }
 
+    public DateTime DateShare { get; set; }
+
     public virtual Post Post { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;

@@ -527,6 +527,9 @@ public partial class DoAnContext : DbContext
             entity.Property(e => e.ShareId)
                 .HasColumnType("int(11)")
                 .HasColumnName("share_id");
+            entity.Property(e => e.DateShare)
+                .HasColumnType("datetime")
+                .HasColumnName("date_share");
             entity.Property(e => e.PostId)
                 .HasColumnType("int(11)")
                 .HasColumnName("post_id");
@@ -558,6 +561,9 @@ public partial class DoAnContext : DbContext
             entity.Property(e => e.Id)
                 .HasColumnType("int(11)")
                 .HasColumnName("id");
+            entity.Property(e => e.DateShare)
+                .HasColumnType("datetime")
+                .HasColumnName("date_share");
             entity.Property(e => e.GroupId)
                 .HasColumnType("int(11)")
                 .HasColumnName("group_id");

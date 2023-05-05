@@ -17,7 +17,7 @@ namespace DoAn.Controllers
             _context = context;
         }
 
-        //GET
+        //GET mọi người trừ mình
         [HttpGet("AllUser/{id}")]
         public async Task<ActionResult> AllUser(string id)
         {
@@ -30,6 +30,8 @@ namespace DoAn.Controllers
             }
             return Ok(user);
         }
+        
+        //Get all post
         [HttpGet("Post/{id}")]
         public async Task<ActionResult> GetPost(string id) 
         {
@@ -52,6 +54,7 @@ namespace DoAn.Controllers
                     like = _context.Likes.Where(l => l.PostId == i.PostId).Count(),
                     liked = (_context.Likes.Where(l => l.PostId == i.PostId && l.UserId == id)).Any(),
                     share = _context.Shares.Where(s => s.PostId == i.PostId).Count(),
+                    shared = (_context.Shares.Where(l => l.PostId == i.PostId && l.UserId == id)).Any(),
                 }).ToListAsync();
                 return Ok(post);
             }
@@ -60,6 +63,34 @@ namespace DoAn.Controllers
                 throw;
             }
         }
+        //all share post
+        [HttpGet("SharePost/{id}")]
+        public async Task<ActionResult> SharePost(string id)
+        {
+            try
+            {
+                var post = await _context.Shares.OrderByDescending(i => i.DateShare)
+                .Select(i => new {
+                    i.UserId,
+                    i.User!.FullName,
+                    i.User.UsersInfo!.Avatar,
+                    i.PostId,
+                    i.Post.Content,
+                    i.Post.Image1,
+                    i.Post.Image2,
+                    i.Post.Image3,
+                    i.Post.AccessModifier,
+                    datepost = i.DateShare.ToString("dd-MM-yyyy"),
+                    comment = _context.Comments.Select(i => new { i.CmId, i.PostId, i.User!.FullName, i.User.UsersInfo!.Avatar, i.Content }).Where(c => c.PostId == i.PostId).ToList(),
+                    like = _context.Likes.Where(l => l.PostId == i.PostId).Count(),
+                    liked = (_context.Likes.Where(l => l.PostId == i.PostId && l.UserId == id)).Any(),
+                    share = _context.Shares.Where(s => s.PostId == i.PostId).Count(),
+                }).ToListAsync();
+                return Ok(post);
+            }
+            catch { throw; }
+        }
+        
         //danh sach yeu cau ket ban
         [HttpGet("FriendRequest/{id}")]
         public async Task<ActionResult> FriendRequest(string id)
@@ -79,7 +110,7 @@ namespace DoAn.Controllers
             }
             catch { throw; }
         }
-       
+        //danh sach
         [HttpGet("RequestFriend/{id}")]
         public async Task<ActionResult> RequestFriend(string id)
         {
@@ -149,6 +180,7 @@ namespace DoAn.Controllers
         {
             try
             {
+                share.DateShare = DateTime.Now;
                 _context.Shares.Add(share);
                 await _context.SaveChangesAsync();
             }

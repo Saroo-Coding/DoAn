@@ -88,7 +88,21 @@ namespace DoAn.Controllers
         }
 
         //POST
-
+        [HttpPost("NewShare")]
+        public async Task<ActionResult> NewShare(SharePostGroup share)
+        {
+            try
+            {
+                share.DateShare = DateTime.Now;
+                _context.SharePostGroups.Add(share);
+                await _context.SaveChangesAsync();
+            }
+            catch
+            {
+                throw;
+            }
+            return Ok();
+        }
         [HttpPost("NewGroupPost")]
         public async Task<ActionResult> NewGroupPost(GroupPost post)
         {
@@ -168,6 +182,25 @@ namespace DoAn.Controllers
         }
 
         //DELETE
+        [HttpDelete("DeleteShare/{id}")]
+        public async Task<ActionResult> DeleteShare(int id)
+        {
+            try
+            {
+                var req = await _context.SharePostGroups.FindAsync(id);
+                if (req == null)
+                {
+                    return NotFound();
+                }
+                _context.SharePostGroups.Remove(req);
+                await _context.SaveChangesAsync();
+                return NoContent();
+            }
+            catch
+            {
+                throw;
+            }
+        }
         [HttpDelete("LeaveGroup")]
         public async Task<ActionResult> LeaveGroup(GroupMember mb)
         {

@@ -13,6 +13,8 @@ public partial class SharePostGroup
 
     public int GroupId { get; set; }
 
+    public DateTime DateShare { get; set; }
+
     public virtual Group Group { get; set; } = null!;
 
     public virtual GroupPost Post { get; set; } = null!;
