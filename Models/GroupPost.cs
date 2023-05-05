@@ -27,5 +27,7 @@ public partial class GroupPost
 
     public virtual ICollection<LikeGroupPost> LikeGroupPosts { get; } = new List<LikeGroupPost>();
 
+    public virtual ICollection<SharePostGroup> SharePostGroups { get; } = new List<SharePostGroup>();
+
     public virtual User? User { get; set; }
 }

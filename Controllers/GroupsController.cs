@@ -45,9 +45,10 @@ namespace DoAn.Controllers
                     i.Avatar,
                     i.CoverImage,
                     i.Intro,
-                    Admin = _context.GroupMembers.Where(m => m.GroupId == i.GroupId && m.Position == "admin").Select(m => new { m.UserId, m.User.FullName, m.User.UsersInfo!.Avatar }).ToList(),
-                    Mod = _context.GroupMembers.Where(m => m.GroupId == i.GroupId && m.Position == "mod").Select(m => new { m.UserId, m.User.FullName, m.User.UsersInfo!.Avatar }).ToList(),
-                    Member = _context.GroupMembers.Where(m => m.GroupId == i.GroupId ).Select(m => new { m.UserId, m.User.FullName, m.User.UsersInfo!.Avatar }).ToList(),
+                    Admin = _context.GroupMembers.Where(m => m.GroupId == i.GroupId && m.Position == "admin").Select(m => new { m.UserId, m.User!.FullName, m.User.UsersInfo!.Avatar }).ToList(),
+                    Mod = _context.GroupMembers.Where(m => m.GroupId == i.GroupId && m.Position == "mod").Select(m => new { m.UserId, m.User!.FullName, m.User.UsersInfo!.Avatar }).ToList(),
+                    Member = _context.GroupMembers.Where(m => m.GroupId == i.GroupId ).Select(m => new { m.UserId, m.User!.FullName, m.User.UsersInfo!.Avatar }).ToList(),
+                    Join = _context.JoinGroupReqs.Where(m => m.GroupId == i.GroupId ).Select(m => new { m.UserId, m.User!.FullName, m.User.UsersInfo!.Avatar }).ToList(),
                 }).FirstOrDefaultAsync();
             if (group == null)
             {
@@ -130,8 +131,83 @@ namespace DoAn.Controllers
             }
             return CreatedAtAction("NewCmt", cmt);
         }
+        [HttpPost("JoinReq")]
+        public async Task<ActionResult> JoinReq(JoinGroupReq req)
+        {
+            try
+            {
+                _context.JoinGroupReqs.Add(req);
+                await _context.SaveChangesAsync();
+            }
+            catch
+            {
+                throw;
+            }
+            return CreatedAtAction("JoinReq", req);
+        }
+        [HttpPost("NewMember/{id}")]
+        public async Task<ActionResult> NewMember(int id)
+        {
+            try
+            {
+                var req = _context.JoinGroupReqs.Where(m => m.ReqId == id).FirstOrDefault();
+                GroupMember mb = new GroupMember();
+                mb.GroupId = req!.GroupId;
+                mb.UserId = req.UserId;
+                mb.Position = "member";
+                _context.GroupMembers.Add(mb);
+                _context.JoinGroupReqs.Remove(req);
+                await _context.SaveChangesAsync();
+            }
+            catch
+            {
+                throw;
+            }
+            return Ok();
+        }
 
         //DELETE
+        [HttpDelete("LeaveGroup")]
+        public async Task<ActionResult> LeaveGroup(GroupMember mb)
+        {
+            try
+            {
+                var post = await _context.GroupMembers.Where(m => m.GroupId == mb.GroupId && m.UserId == mb.UserId).FirstAsync();
+                if (post == null)
+                {
+                    return NotFound();
+                }
+
+                _context.GroupMembers.Remove(post);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch
+            {
+                throw;
+            }
+        }
+        [HttpDelete("DeleteJoinReq")]
+        public async Task<ActionResult> DeleteJoinReq(JoinGroupReq req)
+        {
+            try
+            {
+                var post = await _context.JoinGroupReqs.Where(m => m.GroupId == req.GroupId && m.UserId == req.UserId).FirstAsync();
+                if (post == null)
+                {
+                    return NotFound();
+                }
+                _context.JoinGroupReqs.Remove(post);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch
+            {
+                throw;
+            }
+        }
         [HttpDelete("DeletePost/{id}")]
         public async Task<ActionResult> DeletePost(int id)
         {

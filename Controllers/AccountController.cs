@@ -22,7 +22,7 @@ namespace DoAn.Controllers
         public async Task<ActionResult> Get(string id)
         {
             var allGroup = _context.Groups.Select(g => new { g.GroupId, g.NameGroup, g.Avatar }).ToList();
-            var groups = _context.GroupMembers.Where(m => m.UserId == id).Select(m => new { m.GroupId, m.Group.NameGroup, m.Group.Avatar }).ToList();
+            var groups = _context.GroupMembers.Where(m => m.UserId == id).Select(m => new { m.GroupId, m.Group!.NameGroup, m.Group.Avatar }).ToList();
             var notInGroups = allGroup.Except(groups).ToList();
             var user = await _context.Users
                 .Where(i => i.UserId == id)
@@ -59,6 +59,33 @@ namespace DoAn.Controllers
                     like = _context.Likes.Where(l => l.PostId == i.PostId).Count(),
                     liked = (_context.Likes.Where(l => l.PostId == i.PostId && l.UserId == id)).Any(),
                     cmt = _context.Comments.Where(c => c.PostId == i.PostId).Count(),
+                    share = _context.Shares.Where(s => s.PostId == i.PostId).Count(),
+                }).ToListAsync();
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return Ok(user);
+        }
+        [HttpGet("MyPostInGroup/{id}")]
+        public async Task<ActionResult> GetMyPostInGroup(string id)
+        {
+            var user = await _context.GroupPosts.Where(i => i.UserId == id)
+                .Select(i => new {
+                    i.UserId,
+                    i.User!.FullName,
+                    i.User.UsersInfo!.Avatar,
+                    i.PostId,
+                    i.Content,
+                    i.Img1,
+                    i.Img2,
+                    i.Img3,
+                    datepost = i.DatePost.ToString("dd-MM-yyyy"),
+                    comment = _context.CmtGroupPosts.Select(i => new { i.CmtId, i.PostId, i.User!.FullName, i.User.UsersInfo!.Avatar, i.Content }).Where(c => c.PostId == i.PostId).ToList(),
+                    like = _context.LikeGroupPosts.Where(l => l.PostId == i.PostId).Count(),
+                    liked = (_context.LikeGroupPosts.Where(l => l.PostId == i.PostId && l.UserId == id)).Any(),
+                    cmt = _context.CmtGroupPosts.Where(c => c.PostId == i.PostId).Count(),
                     share = _context.Shares.Where(s => s.PostId == i.PostId).Count(),
                 }).ToListAsync();
 

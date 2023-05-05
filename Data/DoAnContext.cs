@@ -40,6 +40,8 @@ public partial class DoAnContext : DbContext
 
     public virtual DbSet<Share> Shares { get; set; }
 
+    public virtual DbSet<SharePostGroup> SharePostGroups { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<UsersInfo> UsersInfos { get; set; }
@@ -438,29 +440,46 @@ public partial class DoAnContext : DbContext
 
             entity.ToTable("post_notify");
 
-            entity.HasIndex(e => e.UserId, "notify_user");
+            entity.HasIndex(e => e.FromUser, "notify_to_user");
 
             entity.HasIndex(e => e.PostId, "post_notification");
+
+            entity.HasIndex(e => e.ToUser, "user_send");
 
             entity.Property(e => e.Id)
                 .HasColumnType("int(11)")
                 .HasColumnName("id");
+            entity.Property(e => e.Content)
+                .HasColumnType("text")
+                .HasColumnName("content")
+                .UseCollation("utf8mb4_general_ci")
+                .HasCharSet("utf8mb4");
+            entity.Property(e => e.FromUser)
+                .HasMaxLength(30)
+                .HasColumnName("from_user")
+                .UseCollation("utf8mb4_general_ci")
+                .HasCharSet("utf8mb4");
             entity.Property(e => e.PostId)
                 .HasColumnType("int(11)")
                 .HasColumnName("post_id");
-            entity.Property(e => e.UserId)
+            entity.Property(e => e.Status).HasColumnName("status");
+            entity.Property(e => e.ToUser)
                 .HasMaxLength(30)
-                .HasColumnName("user_id")
+                .HasColumnName("to_user")
                 .UseCollation("utf8mb4_general_ci")
                 .HasCharSet("utf8mb4");
+
+            entity.HasOne(d => d.FromUserNavigation).WithMany(p => p.PostNotifyFromUserNavigations)
+                .HasForeignKey(d => d.FromUser)
+                .HasConstraintName("notify_to_user");
 
             entity.HasOne(d => d.Post).WithMany(p => p.PostNotifies)
                 .HasForeignKey(d => d.PostId)
                 .HasConstraintName("post_notification");
 
-            entity.HasOne(d => d.User).WithMany(p => p.PostNotifies)
-                .HasForeignKey(d => d.UserId)
-                .HasConstraintName("notify_user");
+            entity.HasOne(d => d.ToUserNavigation).WithMany(p => p.PostNotifyToUserNavigations)
+                .HasForeignKey(d => d.ToUser)
+                .HasConstraintName("user_send");
         });
 
         modelBuilder.Entity<RefreshToken>(entity =>
@@ -522,6 +541,37 @@ public partial class DoAnContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Shares)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("user_share");
+        });
+
+        modelBuilder.Entity<SharePostGroup>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("share_post_group");
+
+            entity.HasIndex(e => e.PostId, "chiase_post");
+
+            entity.HasIndex(e => e.UserId, "user_chiase");
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.PostId)
+                .HasColumnType("int(11)")
+                .HasColumnName("post_id");
+            entity.Property(e => e.UserId)
+                .HasMaxLength(30)
+                .HasColumnName("user_id")
+                .UseCollation("utf8mb4_general_ci")
+                .HasCharSet("utf8mb4");
+
+            entity.HasOne(d => d.Post).WithMany(p => p.SharePostGroups)
+                .HasForeignKey(d => d.PostId)
+                .HasConstraintName("chiase_post");
+
+            entity.HasOne(d => d.User).WithMany(p => p.SharePostGroups)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("user_chiase");
         });
 
         modelBuilder.Entity<User>(entity =>

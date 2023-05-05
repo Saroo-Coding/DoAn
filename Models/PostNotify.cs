@@ -7,11 +7,19 @@ public partial class PostNotify
 {
     public int Id { get; set; }
 
-    public string UserId { get; set; } = null!;
+    public string FromUser { get; set; } = null!;
 
     public int PostId { get; set; }
 
-    public virtual Post? Post { get; set; }
+    public string ToUser { get; set; } = null!;
 
-    public virtual User? User { get; set; }
+    public string Content { get; set; } = null!;
+
+    public double Status { get; set; }
+
+    public virtual User FromUserNavigation { get; set; } = null!;
+
+    public virtual Post Post { get; set; } = null!;
+
+    public virtual User ToUserNavigation { get; set; } = null!;
 }
