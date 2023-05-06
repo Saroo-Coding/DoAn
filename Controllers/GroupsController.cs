@@ -61,7 +61,7 @@ namespace DoAn.Controllers
         {
             try
             {
-                var post = await _context.GroupPosts
+                var post = await _context.GroupPosts.OrderByDescending(i => i.DatePost)
                 .Where( i => i.GroupId == id)
                 .Select(i => new {
                     i.UserId,
@@ -77,7 +77,7 @@ namespace DoAn.Controllers
                     like = _context.LikeGroupPosts.Where(l => l.PostId == i.PostId).Count(),
                     liked = (_context.LikeGroupPosts.Where(l => l.PostId == i.PostId && l.UserId == i.UserId)).Any(),
                     cmt = _context.CmtGroupPosts.Where(c => c.PostId == i.PostId).Count(),
-                    //share = _context.Shares.Where(s => s.PostId == i.PostId).Count(),
+                    share = _context.SharePostGroups.Where(s => s.PostId == i.PostId).Count(),
                 }).ToListAsync();
                 return Ok(post);
             }

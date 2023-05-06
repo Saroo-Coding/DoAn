@@ -15,9 +15,9 @@ public partial class SharePostGroup
 
     public DateTime DateShare { get; set; }
 
-    public virtual Group Group { get; set; } = null!;
+    public virtual Group? Group { get; set; }
 
-    public virtual GroupPost Post { get; set; } = null!;
+    public virtual GroupPost? Post { get; set; }
 
-    public virtual User User { get; set; } = null!;
+    public virtual User? User { get; set; }
 }

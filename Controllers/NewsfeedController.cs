@@ -37,9 +37,13 @@ namespace DoAn.Controllers
         {
             try
             {
+                /*var congkhai = await _context.Posts.Where(i => i.AccessModifier != "Chỉ mình t").ToListAsync();
+                var friend = await _context.Friends.Where(i => i.UserId == id).Select(i => new { i.AddFriend }).ToListAsync();
+                var banbe = await _context.Posts.Where(i => i.AccessModifier == "Bạn bè" && friend.Contains(i.UserId)).ToListAsync();*/
                 var post = await _context.Posts.OrderByDescending(i => i.DatePost)
                 .Where(i => i.AccessModifier != "Chỉ mình t")
-                .Select(i => new{   
+                .Select(i => new
+                {
                     i.UserId,
                     i.User!.FullName,
                     i.User.UsersInfo!.Avatar,
@@ -54,7 +58,6 @@ namespace DoAn.Controllers
                     like = _context.Likes.Where(l => l.PostId == i.PostId).Count(),
                     liked = (_context.Likes.Where(l => l.PostId == i.PostId && l.UserId == id)).Any(),
                     share = _context.Shares.Where(s => s.PostId == i.PostId).Count(),
-                    shared = (_context.Shares.Where(l => l.PostId == i.PostId && l.UserId == id)).Any(),
                 }).ToListAsync();
                 return Ok(post);
             }
@@ -75,7 +78,7 @@ namespace DoAn.Controllers
                     i.User!.FullName,
                     i.User.UsersInfo!.Avatar,
                     i.PostId,
-                    i.Post.Content,
+                    i.Post!.Content,
                     i.Post.Image1,
                     i.Post.Image2,
                     i.Post.Image3,
@@ -182,6 +185,14 @@ namespace DoAn.Controllers
             {
                 share.DateShare = DateTime.Now;
                 _context.Shares.Add(share);
+                var user = await _context.Posts.Where(i => i.PostId == share.PostId).Select(i => new { i.UserId }).FirstAsync();
+                PostNotify notify = new PostNotify();
+                notify.FromUser = share.UserId;
+                notify.ToUser = user.UserId;
+                notify.PostId = share.PostId;
+                notify.Content = "đã chia sẻ bài viết của bạn";
+                notify.Status = 0;
+                _context.PostNotifies.Add(notify);
                 await _context.SaveChangesAsync();
             }
             catch
@@ -195,6 +206,17 @@ namespace DoAn.Controllers
         {
             try
             {
+                var user = await _context.Posts.Where(i => i.PostId == like.PostId).Select(i => new { i.UserId }).FirstAsync();  
+                if (user.UserId != like.UserId)
+                { 
+                    PostNotify notify = new PostNotify();
+                    notify.FromUser = like.UserId;
+                    notify.ToUser = user.UserId;
+                    notify.PostId = like.PostId;
+                    notify.Content = "đã thả tim bài viết của bạn";
+                    notify.Status = 0;
+                    _context.PostNotifies.Add(notify);
+                }
                 _context.Likes.Add(like);
                 await _context.SaveChangesAsync();
             }
@@ -224,6 +246,17 @@ namespace DoAn.Controllers
         {
             try
             {
+                var user = await _context.Posts.Where(i => i.PostId == comment.PostId).Select(i => new { i.UserId }).FirstAsync();
+                if (user.UserId != comment.UserId)
+                {
+                    PostNotify notify = new PostNotify();
+                    notify.FromUser = comment.UserId;
+                    notify.ToUser = user.UserId;
+                    notify.PostId = comment.PostId;
+                    notify.Content = "đã bình luận: " + comment.Content;
+                    notify.Status = 0;
+                    _context.PostNotifies.Add(notify);
+                }
                 _context.Comments.Add(comment);
                 await _context.SaveChangesAsync();
             }
