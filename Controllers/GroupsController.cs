@@ -94,6 +94,18 @@ namespace DoAn.Controllers
             try
             {
                 share.DateShare = DateTime.Now;
+                /*var user = await _context.GroupPosts.Where(i => i.PostId == share.PostId).Select(i => new { i.UserId, i.GroupId }).FirstAsync();
+                if (user.UserId != share.UserId)
+                {
+                    PostNotify notify = new PostNotify();
+                    notify.FromUser = share.UserId;
+                    notify.ToUser = user.UserId;
+                    notify.PostId = share.PostId;
+                    notify.Content = "đã chia sẻ bài viết của bạn";
+                    notify.Status = 0;
+                    notify.Date = DateTime.Now;
+                    _context.PostNotifies.Add(notify);
+                }*/
                 _context.SharePostGroups.Add(share);
                 await _context.SaveChangesAsync();
             }
@@ -123,6 +135,18 @@ namespace DoAn.Controllers
         {
             try
             {
+                /*var user = await _context.GroupPosts.Where(i => i.PostId == like.PostId).Select(i => new { i.UserId, i.GroupId }).FirstAsync();
+                if (user.UserId != like.UserId)
+                {
+                    PostNotify notify = new PostNotify();
+                    notify.FromUser = like.UserId;
+                    notify.ToUser = user.UserId;
+                    notify.PostId = like.PostId;
+                    notify.Content = "đã thả tim bài viết của bạn";
+                    notify.Status = 0;
+                    notify.Date = DateTime.Now;
+                    _context.PostNotifies.Add(notify);
+                }*/
                 _context.LikeGroupPosts.Add(like);
                 await _context.SaveChangesAsync();
             }
@@ -130,13 +154,25 @@ namespace DoAn.Controllers
             {
                 throw;
             }
-            return CreatedAtAction("NewLike", like);
+            return Ok();
         }
         [HttpPost("NewCmt")]
         public async Task<ActionResult> NewCmt(CmtGroupPost cmt)
         {
             try
             {
+               /* var user = await _context.GroupPosts.Where(i => i.PostId == cmt.PostId).Select(i => new { i.UserId, i.GroupId }).FirstAsync();
+                if (user.UserId != cmt.UserId)
+                {
+                    PostNotify notify = new PostNotify();
+                    notify.FromUser = cmt.UserId;
+                    notify.ToUser = user.UserId;
+                    notify.PostId = cmt.PostId;
+                    notify.Content = "đã bình luận: " + cmt.Content;
+                    notify.Status = 0;
+                    notify.Date = DateTime.Now;
+                    _context.PostNotifies.Add(notify);
+                }*/
                 _context.CmtGroupPosts.Add(cmt);
                 await _context.SaveChangesAsync();
             }

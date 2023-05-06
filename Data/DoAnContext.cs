@@ -454,6 +454,9 @@ public partial class DoAnContext : DbContext
                 .HasColumnName("content")
                 .UseCollation("utf8mb4_general_ci")
                 .HasCharSet("utf8mb4");
+            entity.Property(e => e.Date)
+                .HasColumnType("datetime")
+                .HasColumnName("date");
             entity.Property(e => e.FromUser)
                 .HasMaxLength(30)
                 .HasColumnName("from_user")

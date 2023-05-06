@@ -23,5 +23,7 @@ public partial class Group
 
     public virtual ICollection<JoinGroupReq> JoinGroupReqs { get; } = new List<JoinGroupReq>();
 
+    public virtual ICollection<PostNotify> PostNotifies { get; } = new List<PostNotify>();
+
     public virtual ICollection<SharePostGroup> SharePostGroups { get; } = new List<SharePostGroup>();
 }

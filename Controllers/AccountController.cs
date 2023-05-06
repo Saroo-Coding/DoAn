@@ -126,7 +126,7 @@ namespace DoAn.Controllers
         public async Task<ActionResult> GetFriend(string id)
         {
             var user = await _context.Friends.Where(i => i.UserId == id)
-                .Select(i => new {i.FriendId, i.AddFriendNavigation.UserId, i.AddFriendNavigation.FullName, i.AddFriendNavigation.UsersInfo!.Avatar })
+                .Select(i => new {i.FriendId, i.AddFriendNavigation!.UserId, i.AddFriendNavigation.FullName, i.AddFriendNavigation.UsersInfo!.Avatar })
                 .ToListAsync();
             if (user == null)
             {

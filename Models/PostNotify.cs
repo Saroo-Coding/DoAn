@@ -17,9 +17,11 @@ public partial class PostNotify
 
     public double Status { get; set; }
 
-    public virtual User? FromUserNavigation { get; set; }
+    public DateTime Date { get; set; }
 
-    public virtual Post? Post { get; set; }
+    public virtual User? FromUserNavigation { get; set; } 
 
-    public virtual User? ToUserNavigation { get; set; }
+    public virtual Post? Post { get; set; } 
+
+    public virtual User? ToUserNavigation { get; set; } 
 }

@@ -11,7 +11,7 @@ public partial class Friend
 
     public string AddFriend { get; set; } = null!;
 
-    public virtual User AddFriendNavigation { get; set; } = null!;
+    public virtual User? AddFriendNavigation { get; set; }
 
-    public virtual User User { get; set; } = null!;
+    public virtual User? User { get; set; }
 }
