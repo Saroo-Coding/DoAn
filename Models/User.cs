@@ -5,9 +5,9 @@ namespace DoAn;
 
 public partial class User
 {
-    public string? UserId { get; set; }
+    public string UserId { get; set; } = null!;
 
-    public string? FullName { get; set; }
+    public string FullName { get; set; } = null!;
 
     public string Sex { get; set; } = null!;
 
@@ -17,9 +17,11 @@ public partial class User
 
     public string Pass { get; set; } = null!;
 
-    public DateTime? BirthDay { get; set; }
+    public DateOnly BirthDay { get; set; }
 
     public DateTime CreatedAt { get; set; }
+
+    public bool Status { get; set; }
 
     public virtual ICollection<CmtGroupPost> CmtGroupPosts { get; } = new List<CmtGroupPost>();
 

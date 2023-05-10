@@ -623,6 +623,7 @@ public partial class DoAnContext : DbContext
             entity.Property(e => e.Sex)
                 .HasMaxLength(5)
                 .HasColumnName("sex");
+            entity.Property(e => e.Status).HasColumnName("status");
         });
 
         modelBuilder.Entity<UsersInfo>(entity =>

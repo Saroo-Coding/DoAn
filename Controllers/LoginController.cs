@@ -3,6 +3,7 @@ using DoAn.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -118,6 +119,10 @@ namespace DoAn.Controllers
                 //tao token
                 userWithToken!.RefreshToken = CreateAccessToken(user.UserId!);
             }
+            User infor = await _context.Users.SingleAsync(i => i.UserId == userWithToken.UserId);
+            infor.Status = true;
+            _context.Entry(infor).State = EntityState.Modified;
+            _context.SaveChanges();
             return Ok(userWithToken);
         }     
 
@@ -171,7 +176,21 @@ namespace DoAn.Controllers
 
             return Ok(user);
         }
-
+        [HttpPost("Logout/{id}")]
+        public async Task<ActionResult> Logout(string id)
+        {
+            try
+            {
+                var token = await _context.RefreshTokens.Where(i => i.UserId == id).FirstAsync();
+                _context.RefreshTokens.Remove(token);
+                User infor = await _context.Users.SingleAsync(i => i.UserId == id);
+                infor.Status = false;
+                _context.Entry(infor).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            catch { throw; }
+        }
         /*private bool UserExists(string id)
         {
             return _context.Users.Any(e => e.UserId == id);

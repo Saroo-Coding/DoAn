@@ -30,6 +30,21 @@ namespace DoAn.Controllers
             }
             return Ok(user);
         }
+        [HttpGet("Notify/{id}")]
+        public async Task<ActionResult> Notify(string id)
+        {
+            var notify = await _context.PostNotifies.OrderByDescending(i => i.Date).Where(i => i.ToUser == id)
+                .Select(i => new { 
+                    i.Id,
+                    i.FromUser,
+                    i.FromUserNavigation!.FullName,
+                    i.FromUserNavigation.UsersInfo!.Avatar,
+                    i.PostId,
+                    i.Content,
+                    i.Status})
+                .ToListAsync();
+            return Ok(notify);
+        }
         
         //Get all post
         [HttpGet("Post/{id}")]
@@ -89,6 +104,32 @@ namespace DoAn.Controllers
                     liked = (_context.Likes.Where(l => l.PostId == i.PostId && l.UserId == id)).Any(),
                     share = _context.Shares.Where(s => s.PostId == i.PostId).Count(),
                 }).ToListAsync();
+                return Ok(post);
+            }
+            catch { throw; }
+        }
+        //chi tiet bai post
+        [HttpGet("DetaillPost/{id}")]
+        public async Task<ActionResult> DetaillPost(int id)
+        {
+            try
+            {
+                var post = await _context.Posts.Where(i => i.PostId == id)
+                .Select(i => new {
+                    i.UserId,
+                    i.User!.FullName,
+                    i.User.UsersInfo!.Avatar,
+                    i.PostId,
+                    i.Content,
+                    i.Image1,
+                    i.Image2,
+                    i.Image3,
+                    i.AccessModifier,
+                    datepost = i.DatePost.ToString("dd-MM-yyyy"),
+                    comment = _context.Comments.Select(i => new { i.CmId, i.PostId, i.User!.FullName, i.User.UsersInfo!.Avatar, i.Content }).Where(c => c.PostId == i.PostId).ToList(),
+                    like = _context.Likes.Where(l => l.PostId == i.PostId).ToList(),
+                    share = _context.Shares.Where(s => s.PostId == i.PostId).Count(),
+                }).FirstAsync();
                 return Ok(post);
             }
             catch { throw; }
@@ -304,6 +345,20 @@ namespace DoAn.Controllers
             catch { throw; }
         }
 
+        //PUT
+        [HttpPut("DaXem/{id}")]
+        public async Task<ActionResult> DaXem(int id)
+        {
+            try
+            {
+                PostNotify notify = await _context.PostNotifies.SingleAsync(i => i.Id == id);
+                notify.Status = 1;
+                _context.Entry(notify).State = EntityState.Modified;
+                _context.SaveChanges();
+                return Ok();
+            }
+            catch { throw; }
+        }
 
         //DELETE
         [HttpDelete("XoaPost/{id}")]
@@ -318,6 +373,27 @@ namespace DoAn.Controllers
                 }
 
                 _context.Posts.Remove(post);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch
+            {
+                throw;
+            }
+        }
+        [HttpDelete("XoaNotify/{id}")]
+        public async Task<ActionResult> XoaNotify(int id)
+        {
+            try
+            {
+                var notify = await _context.PostNotifies.FindAsync(id);
+                if (notify == null)
+                {
+                    return NotFound();
+                }
+
+                _context.PostNotifies.Remove(notify);
                 await _context.SaveChangesAsync();
 
                 return NoContent();
