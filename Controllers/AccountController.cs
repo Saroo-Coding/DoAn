@@ -1,5 +1,4 @@
 ﻿using DoAn.Data;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,9 +25,21 @@ namespace DoAn.Controllers
             var notInGroups = allGroup.Except(groups).ToList();
             var user = await _context.Users
                 .Where(i => i.UserId == id)
-                .Select(i => new { i.UserId, i.FullName, i.Phone, i.Email,
-                    i.UsersInfo!.Avatar,i.UsersInfo!.AnhBia ,i.Sex, i.UsersInfo.StudyAt, i.UsersInfo.WorkingAt, i.UsersInfo.Favorites
-                    , i.UsersInfo.OtherInfo, i.BirthDay,
+                .Select(i => new
+                {
+                    i.UserId,
+                    i.FullName,
+                    i.Phone,
+                    i.Email,
+                    i.UsersInfo!.Avatar,
+                    i.UsersInfo!.AnhBia,
+                    i.Sex,
+                    i.UsersInfo.StudyAt,
+                    i.UsersInfo.WorkingAt,
+                    i.UsersInfo.Favorites
+                    ,
+                    i.UsersInfo.OtherInfo,
+                    i.BirthDay,
                     friend = _context.Friends.Where(f => f.UserId == i.UserId).Count(),
                     groups,
                     notInGroups,
@@ -44,7 +55,8 @@ namespace DoAn.Controllers
         public async Task<ActionResult> GetMyPost(string id)
         {
             var user = await _context.Posts.OrderByDescending(i => i.DatePost).Where(i => i.UserId == id)
-                .Select(i => new {
+                .Select(i => new
+                {
                     i.UserId,
                     i.User!.FullName,
                     i.User.UsersInfo!.Avatar,
@@ -56,7 +68,7 @@ namespace DoAn.Controllers
                     i.AccessModifier,
                     datepost = i.DatePost.ToString("dd-MM-yyyy"),
                     comment = _context.Comments.Select(i => new { i.CmId, i.PostId, i.User!.FullName, i.User.UsersInfo!.Avatar, i.Content }).Where(c => c.PostId == i.PostId).ToList(),
-                    like = _context.Likes.Where(l => l.PostId == i.PostId).Select(i => new {i.UserId}).ToList(),
+                    like = _context.Likes.Where(l => l.PostId == i.PostId).Select(i => new { i.UserId }).ToList(),
                     share = _context.Shares.Where(s => s.PostId == i.PostId).Count(),
                 }).ToListAsync();
 
@@ -70,7 +82,8 @@ namespace DoAn.Controllers
         public async Task<ActionResult> GetMyPostInGroup(string id)
         {
             var user = await _context.GroupPosts.Where(i => i.UserId == id)
-                .Select(i => new {
+                .Select(i => new
+                {
                     i.UserId,
                     i.User!.FullName,
                     i.User.UsersInfo!.Avatar,
@@ -93,12 +106,12 @@ namespace DoAn.Controllers
             }
             return Ok(user);
         }
-        
+
         [HttpGet("LikeMyPost/{id}")]
-        public async Task<ActionResult> GetLikePost(int id) 
+        public async Task<ActionResult> GetLikePost(int id)
         {
             var user = await _context.Likes.Where(i => i.PostId == id)
-                .Select(i => new { i.User!.UserId, i.User.FullName,i.User.UsersInfo!.Avatar})
+                .Select(i => new { i.User!.UserId, i.User.FullName, i.User.UsersInfo!.Avatar })
                 .ToListAsync();
 
             if (user == null)
@@ -112,7 +125,7 @@ namespace DoAn.Controllers
         public async Task<ActionResult> GetComment(int id)
         {
             var user = await _context.Comments.Where(i => i.PostId == id)
-                .Select(i => new { i.User!.UserId, i.User.FullName, i.User.UsersInfo!.Avatar, i.Content})
+                .Select(i => new { i.User!.UserId, i.User.FullName, i.User.UsersInfo!.Avatar, i.Content })
                 .ToListAsync();
 
             if (user == null)
@@ -126,7 +139,7 @@ namespace DoAn.Controllers
         public async Task<ActionResult> GetFriend(string id)
         {
             var user = await _context.Friends.Where(i => i.UserId == id)
-                .Select(i => new {i.FriendId, i.AddFriendNavigation!.UserId, i.AddFriendNavigation.FullName, i.AddFriendNavigation.UsersInfo!.Avatar, i.AddFriendNavigation.Status })
+                .Select(i => new { i.FriendId, i.AddFriendNavigation!.UserId, i.AddFriendNavigation.FullName, i.AddFriendNavigation.UsersInfo!.Avatar, i.AddFriendNavigation.Status })
                 .ToListAsync();
             if (user == null)
             {
@@ -134,7 +147,7 @@ namespace DoAn.Controllers
             }
             return Ok(user);
         }
-        
+
         [HttpGet("MyFollow/{id}")]
         public async Task<ActionResult> GetFollow(string id)
         {
@@ -148,8 +161,21 @@ namespace DoAn.Controllers
             }
             return Ok(user);
         }
+        [HttpGet("Chating")]
+        public async Task<ActionResult> Chating(string from, string to)
+        {
+            try
+            {
+                var mess = await _context.Messages
+                    .OrderBy(i => i.Id)
+                    .Where(i => i.FromUser == from && i.ToUser == to || i.FromUser == to && i.ToUser == from)
+                    .Select(i => new { i.Id, i.FromUser, FromAva = i.FromUserNavigation!.UsersInfo!.Avatar, i.ToUser, ToAva = i.ToUserNavigation!.UsersInfo!.Avatar, i.Message1 }).ToListAsync();
+                return Ok(mess);
+            }
+            catch { throw; }
+        }
 
-        //Post
+        //Put
         [HttpPut("EditImage/{id}")]
         public async Task<IActionResult> EditImage(string id, UsersInfo usersInfo)
         {
@@ -157,7 +183,7 @@ namespace DoAn.Controllers
             {
                 return BadRequest();
             }
-            
+
             UsersInfo infor = await _context.UsersInfos.SingleAsync(i => i.UserId == id);
 
             if (usersInfo.Avatar != null && infor.Avatar != usersInfo.Avatar)
@@ -172,16 +198,32 @@ namespace DoAn.Controllers
             {
                 infor.OtherInfo = usersInfo.OtherInfo;
             }
-            
+
             _context.Entry(infor).State = EntityState.Modified;
 
             try
             {
                 await _context.SaveChangesAsync();
             }
-            catch {throw;}
+            catch { throw; }
 
             return NoContent();
+        }
+        
+        //Post
+        [HttpPost("SendMess")]
+        public async Task<ActionResult> SendMess(Message message)
+        {
+            try
+            {
+                _context.Messages.Add(message);
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            catch
+            {
+                throw;
+            }      
         }
     }
 }

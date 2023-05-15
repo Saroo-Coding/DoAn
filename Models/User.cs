@@ -45,6 +45,10 @@ public partial class User
 
     public virtual ICollection<Like> Likes { get; } = new List<Like>();
 
+    public virtual ICollection<Message> MessageFromUserNavigations { get; } = new List<Message>();
+
+    public virtual ICollection<Message> MessageToUserNavigations { get; } = new List<Message>();
+
     public virtual ICollection<PostNotify> PostNotifyFromUserNavigations { get; } = new List<PostNotify>();
 
     public virtual ICollection<PostNotify> PostNotifyToUserNavigations { get; } = new List<PostNotify>();

@@ -32,6 +32,8 @@ public partial class DoAnContext : DbContext
 
     public virtual DbSet<LikeGroupPost> LikeGroupPosts { get; set; }
 
+    public virtual DbSet<Message> Messages { get; set; }
+
     public virtual DbSet<Post> Posts { get; set; }
 
     public virtual DbSet<PostNotify> PostNotifies { get; set; }
@@ -393,6 +395,44 @@ public partial class DoAnContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.LikeGroupPosts)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("member_like");
+        });
+
+        modelBuilder.Entity<Message>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("messages");
+
+            entity.HasIndex(e => e.FromUser, "incoming");
+
+            entity.HasIndex(e => e.ToUser, "outgoing");
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.FromUser)
+                .HasMaxLength(30)
+                .HasColumnName("from_user")
+                .UseCollation("utf8mb4_general_ci")
+                .HasCharSet("utf8mb4");
+            entity.Property(e => e.Message1)
+                .HasColumnType("text")
+                .HasColumnName("message")
+                .UseCollation("utf8mb4_general_ci")
+                .HasCharSet("utf8mb4");
+            entity.Property(e => e.ToUser)
+                .HasMaxLength(30)
+                .HasColumnName("to_user")
+                .UseCollation("utf8mb4_general_ci")
+                .HasCharSet("utf8mb4");
+
+            entity.HasOne(d => d.FromUserNavigation).WithMany(p => p.MessageFromUserNavigations)
+                .HasForeignKey(d => d.FromUser)
+                .HasConstraintName("incoming");
+
+            entity.HasOne(d => d.ToUserNavigation).WithMany(p => p.MessageToUserNavigations)
+                .HasForeignKey(d => d.ToUser)
+                .HasConstraintName("outgoing");
         });
 
         modelBuilder.Entity<Post>(entity =>
